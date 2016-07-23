@@ -146,297 +146,80 @@ class NeuralNetwork:
                 layer = np.atleast_2d(a[i])
                 delta = np.atleast_2d(deltas[i])
                 self.weights[i] += self.learn_rate * layer.T.dot(delta)
-        
+    
+    #return weights        
+    def getweights(self):
+        return self.weights
+            
+           
 ##### Main Method #####
 
 if __name__ == '__main__':
     
-    #nn = NeuralNetwork([625,625,625,625,625,625,625,625,625,10],1,'sigm')
-    #nn = NeuralNetwork([625,625,350,175,85,50,25,10,10],0.2,'sigm')
-    nn = NeuralNetwork([625,312,78,10,10,10,10],0.2,'sigm')
+    #nn = NeuralNetwork([225,225,112,56,25,10,10],0.2,'sigm')
+    nn = NeuralNetwork([225,112,56,25,10],0.2,'sigm')
     filenumber = 0
-    for i in range(0,5000):
+    
+    for i in range(0,50):
         
         if(i%100 == 0):
             print(i)
 
-        ############     
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/0_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
+        for x in range(0,10):
+            randSet = np.random.randint(30)
+            filenumber = np.random.randint(10)
+ 
+            random_file = 'TestData/'+str(randSet)+'_'+str(filenumber)+'.png'
+            im = Image.open(random_file)
+            data = list(im.getdata())
 
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/1_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-
-        nn.feedtrain(question,answer)
-
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/2_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-
-        nn.feedtrain(question,answer)
-
-
-         ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/3_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-
-        nn.feedtrain(question,answer)
-
-
-         ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/4_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/5_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/6_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/7_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/8_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/9_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
-
-        ############  
-        random = filenumber#np.random.randint(10)
-        random_file = 'TestData/10_'+str(random)+'.png'
-        im = Image.open(random_file)
-        data = list(im.getdata())
-
-        question = []
-        
-        answer = [0,0,0,0,0,0,0,0,0,0]
-        answer[random] = 1
-        
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-        
-        nn.feedtrain(question,answer)
+            question = []
+            
+            answer = [0,0,0,0,0,0,0,0,0,0]
+            answer[filenumber] = 1
+            
+            for j in range(0,225):
+                if(data[j][0] == 0):
+                    question.append(1)
+                else:
+                    question.append(0)
+            
+            nn.feedtrain(question,answer)
         
         filenumber = filenumber+1
         if filenumber == 10:
             filenumber = 0
         
     for i in range(0,10):
-        file = 'TestData/0_'+str(i)+'.png'
-        im = Image.open(file)
-        data = list(im.getdata())
-        question = []
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
+        for sets in range(0,31):
+            file = 'TestData/'+str(sets)+'_'+str(i)+'.png'
+            im = Image.open(file)
+            data = list(im.getdata())
+            question = []
+            for j in range(0,225):
+                if(data[j][0] == 0):
+                    question.append(1)
+                else:
+                    question.append(0)
+
+            ret = list(map(int,100*nn.feedforward(question)))
                 
-        print(i,": ",list(map(int,100*nn.feedforward(question))))
+            whatItThought = 0
+            whatItThoughtIndex = 0
+                
+            for k in range(0,10):
+                if(ret[k]>whatItThought):
+                    whatItThought = ret[k]
+                    whatItThoughtIndex = k
+                  
+            print(i,": ",whatItThoughtIndex)
+        print("=====================")
         
-        file = 'TestData/1_'+str(i)+'.png'
-        im = Image.open(file)
-        data = list(im.getdata())
-        question = []
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-    
-        print(i,": ",list(map(int,100*nn.feedforward(question))))
-
-        file = 'TestData/3_'+str(i)+'.png'
-        im = Image.open(file)
-        data = list(im.getdata())
-        question = []
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-    
-        print(i,": ",list(map(int,100*nn.feedforward(question))))
-
-        file = 'TestData/4_'+str(i)+'.png'
-        im = Image.open(file)
-        data = list(im.getdata())
-        question = []
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-    
-        print(i,": ",list(map(int,100*nn.feedforward(question))))
-
-        file = 'TestData/11_'+str(i)+'.png'
-        im = Image.open(file)
-        data = list(im.getdata())
-        question = []
-        for j in range(0,625):
-            if(data[j][0] == 0):
-                question.append(1)
-            else:
-                question.append(0)
-    
-        print(i,": ",list(map(int,100*nn.feedforward(question))))
-        
+    weights = nn.getweights
+    #print(weights)
+    #print(len(weights))
+    #print(len(weights[0]))
+    print(str(len(weights[0][0])))
     #XOR_TEST()
     #MAJORITY_TEST()
     
