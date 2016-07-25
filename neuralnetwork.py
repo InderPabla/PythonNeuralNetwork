@@ -100,15 +100,24 @@ class NeuralNetwork:
 
         self.weights = []
         
+        '''
         for i in range(1, len(layers) - 1):
             r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
             self.weights.append(r)
             
-        r = 2*np.random.random( (layers[i] + 1, layers[i+1])) -1
+        r = 2*np.random.random( (layers[i] + 1, layers[i+1] )) -1
+        '''
 
+        
+        for i in range(1, len(layers) - 1):
+            r = 2*np.random.random((layers[i-1], layers[i] )) -1
+            self.weights.append(r)
+            
+        r = 2*np.random.random( (layers[i], layers[i+1] )) -1
+        
+        
         self.weights.append(r)
-
-    
+        
     #feed forward
     def feedforward(self, inputs):
         inputs.append(1)
@@ -146,33 +155,38 @@ class NeuralNetwork:
                 layer = np.atleast_2d(a[i])
                 delta = np.atleast_2d(deltas[i])
                 self.weights[i] += self.learn_rate * layer.T.dot(delta)
-    
+
     #return weights        
     def getweights(self):
         return self.weights
-            
+           
            
 ##### Main Method #####
 
 if __name__ == '__main__':
     
     #nn = NeuralNetwork([225,225,112,56,25,10,10],0.2,'sigm')
-    nn = NeuralNetwork([225,112,56,25,10],0.2,'sigm')
-    filenumber = 0
+    #inputNeurons = 225+1
+    #layer = [inputNeurons,225,225,112,112,56,56,10,10]
+    #nn = NeuralNetwork(layer,0.2,'sigm')
+
+    #layer = [4,3,2,1]
+    #nn = NeuralNetwork(layer,0.2,'sigm')
+    #filenumber = 0
     
-    for i in range(0,50):
-        
+    '''
+    for i in range(0,5000):
         if(i%100 == 0):
             print(i)
 
-        for x in range(0,10):
+        for x in range(0,1):
             randSet = np.random.randint(30)
             filenumber = np.random.randint(10)
- 
+
             random_file = 'TestData/'+str(randSet)+'_'+str(filenumber)+'.png'
             im = Image.open(random_file)
             data = list(im.getdata())
-
+            
             question = []
             
             answer = [0,0,0,0,0,0,0,0,0,0]
@@ -185,13 +199,15 @@ if __name__ == '__main__':
                     question.append(0)
             
             nn.feedtrain(question,answer)
+
+            
         
         filenumber = filenumber+1
         if filenumber == 10:
             filenumber = 0
         
     for i in range(0,10):
-        for sets in range(0,31):
+        for sets in range(0,41):
             file = 'TestData/'+str(sets)+'_'+str(i)+'.png'
             im = Image.open(file)
             data = list(im.getdata())
@@ -214,12 +230,58 @@ if __name__ == '__main__':
                   
             print(i,": ",whatItThoughtIndex)
         print("=====================")
+    
+    '''
+
+    '''
+    print(nn.feedforward([5,2,-3]))
+    weights = nn.getweights()
+    print (weights)
+    text_file = open("neuralnetwork_number_recognition.txt", "w")
+    text_file.write(str(len(layer))+'\n')
+    
+    for i in range(0,len(layer)):
+        text_file.write(str(layer[i])+'\n')
         
-    weights = nn.getweights
-    #print(weights)
-    #print(len(weights))
-    #print(len(weights[0]))
-    print(str(len(weights[0][0])))
+    for i in range(0,len(weights)):
+        w1 = weights[i]
+        #print('--------------')
+        for j in range(0,len(w1)):
+            w2 = w1[j]
+            #print('==============')
+            for k in range(0,len(w2)):
+                w3 = w2[k]
+                text_file.write(str(w3)+'\n')
+
+    text_file.close()
+    '''
+    
+    
+    details = []
+    with open("neuralnetwork_number_recognition.txt") as f:
+        for line in f:  #Line is a string
+            #split the string on whitespace, return a list of numbers 
+            # (as strings)
+            numbers_str = line.split()
+            #convert numbers to floats
+            numbers_float = [float(x) for x in numbers_str]  #map(float,numbers_str) works too
+            #print(numbers_float)
+            details.append(numbers_float[0])
+    
+    
+    numberOfLayers = int(details[0])
+    layer = []
+    nextIndex = 1
+    for i in range(1,numberOfLayers+1):
+        layer.append(int(details[i]))
+        nextIndex = nextIndex +1
+
+    nextIndex2 = nextIndex 
+    for i in range(nextIndex2,nextIndex2+)
+    print(layer)
+    
+    
+    #print(details)
     #XOR_TEST()
     #MAJORITY_TEST()
     
