@@ -2,6 +2,8 @@ import numpy as np
 from PIL import Image
 
 #Neural network learns XOR
+#C:/Python34/Lib/site-packages/PyQt4/uic/pyuic.py nntest.ui -o nntest.py -x
+
 def XOR_TEST(): 
     nn = NeuralNetwork([3,3,3,1],0.2,'tanh')
     
@@ -85,9 +87,9 @@ def tanh_delta(x):
 
 #Neural network class which provides feed forward and back propagation traning of network
 class NeuralNetwork:
-
+       
     #constructor
-    def __init__ (self, layers, learn_rate, act):
+    def __init__ (self, layers, learn_rate, act, tip = 0):
         self.layers = layers
         self.learn_rate = learn_rate
         
@@ -108,16 +110,17 @@ class NeuralNetwork:
         r = 2*np.random.random( (layers[i] + 1, layers[i+1] )) -1
         '''
 
-        
-        for i in range(1, len(layers) - 1):
-            r = 2*np.random.random((layers[i-1], layers[i] )) -1
-            self.weights.append(r)
+        if (tip == 0):
+            for i in range(1, len(layers) - 1):
+                r = 2*np.random.random((layers[i-1], layers[i] )) -1
+                self.weights.append(r)
+                
+            r = 2*np.random.random( (layers[i], layers[i+1] )) -1
             
-        r = 2*np.random.random( (layers[i], layers[i+1] )) -1
-        
-        
-        self.weights.append(r)
-        
+            
+            self.weights.append(r)
+        else:
+            self.weights = layers
     #feed forward
     def feedforward(self, inputs):
         inputs.append(1)
@@ -166,20 +169,20 @@ class NeuralNetwork:
 if __name__ == '__main__':
     
     #nn = NeuralNetwork([225,225,112,56,25,10,10],0.2,'sigm')
-    #inputNeurons = 225+1
-    #layer = [inputNeurons,225,225,112,112,56,56,10,10]
-    #nn = NeuralNetwork(layer,0.2,'sigm')
+    inputNeurons = 225+1
+    layer = [inputNeurons,225,225,112,112,56,56,10,10]
+    nn = NeuralNetwork(layer,0.2,'sigm')
 
     #layer = [4,3,2,1]
     #nn = NeuralNetwork(layer,0.2,'sigm')
     #filenumber = 0
     
-    '''
+    
     for i in range(0,5000):
         if(i%100 == 0):
             print(i)
 
-        for x in range(0,1):
+        for x in range(0,10):
             randSet = np.random.randint(30)
             filenumber = np.random.randint(10)
 
@@ -231,12 +234,11 @@ if __name__ == '__main__':
             print(i,": ",whatItThoughtIndex)
         print("=====================")
     
-    '''
+    
 
-    '''
-    print(nn.feedforward([5,2,-3]))
+    
+   
     weights = nn.getweights()
-    print (weights)
     text_file = open("neuralnetwork_number_recognition.txt", "w")
     text_file.write(str(len(layer))+'\n')
     
@@ -254,33 +256,48 @@ if __name__ == '__main__':
                 text_file.write(str(w3)+'\n')
 
     text_file.close()
+    
+
+    
     '''
-    
-    
     details = []
+    weights = []
     with open("neuralnetwork_number_recognition.txt") as f:
-        for line in f:  #Line is a string
-            #split the string on whitespace, return a list of numbers 
-            # (as strings)
+        for line in f:  
             numbers_str = line.split()
-            #convert numbers to floats
-            numbers_float = [float(x) for x in numbers_str]  #map(float,numbers_str) works too
-            #print(numbers_float)
+            numbers_float = [float(x) for x in numbers_str] 
             details.append(numbers_float[0])
-    
-    
+        
     numberOfLayers = int(details[0])
     layer = []
     nextIndex = 1
     for i in range(1,numberOfLayers+1):
         layer.append(int(details[i]))
         nextIndex = nextIndex +1
-
-    nextIndex2 = nextIndex 
-    for i in range(nextIndex2,nextIndex2+)
+    
+       
     print(layer)
     
+    for i in range(0,len(layer)-1):
+        firstlayer = layer[i]
+        secondlayer = layer[i+1]
+        arrayOutter = []
+        #print("====================")
+        for j in range(0,firstlayer):
+            #print("@@@@@@@@@@@@@@@@@")
+            arrayInner = []
+            for k in range(0,secondlayer):    
+                #print(details[nextIndex])
+                arrayInner.append(details[nextIndex])
+                nextIndex = nextIndex + 1
+            arrayOutter.append(arrayInner)
+        weights.append(arrayOutter)
+
     
+    print(weights)
+    nn = NeuralNetwork(weights,0.2,'sigm',1)
+    print(nn.feedforward([5,2,-3]))
+    '''
     #print(details)
     #XOR_TEST()
     #MAJORITY_TEST()
