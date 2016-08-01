@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import SGD
 from keras import backend as K
+from PIL import Image
 import numpy as np 
 import math
 
@@ -95,18 +96,18 @@ if __name__ == '__main__':
     model.add(Activation('tanh'))
     model.add(Dense(100))
     model.add(Activation('tanh'))
-    model.add(Dense(50))
+    model.add(Dense(100))
     model.add(Activation('tanh'))
-    model.add(Dense(50))
+    model.add(Dense(100))
     model.add(Activation('tanh'))
-    model.add(Dense(50))
+    model.add(Dense(100))
     model.add(Activation('tanh'))
-    model.add(Dense(10))
+    model.add(Dense(100))
     model.add(Activation('tanh'))
-    model.add(Dense(10))
+    model.add(Dense(100))
     model.add(Activation('tanh'))
     model.add(Dense(2))
-    model.add(Activation('tanh'))
+    model.add(Activation('sigmoid'))
     
     #sgd = SGD(lr=0.1)
     #model.compile(loss='mean_squared_error', optimizer=sgd)
@@ -118,7 +119,9 @@ if __name__ == '__main__':
     
     
     
-    hist = model.fit(qus, ans, nb_epoch=1000)    
+    hist = model.fit(qus, ans, nb_epoch=2000,verbose = 2)   
+    
+    #model.save_weights("DrivingData/car_driving_neural_model.txt")
     
     pre = model.predict(qus)
     for i in range(0,300):
