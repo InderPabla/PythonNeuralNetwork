@@ -1,115 +1,50 @@
-
 from PIL import Image
 from PIL import ImageGrab
-#im=ImageGrab.grab(bbox=(10,30,620,425))
-
-
-import matplotlib
-from PIL import Image
-from PIL import ImageGrab
-
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-
-from urllib.request import urlretrieve
-import pickle
-import os
-import gzip
-
+import PIL
 import numpy as np
-import theano
-import theano.tensor as T
 
-import lasagne
-from lasagne import layers
+# Convert Image to array
+img = PIL.Image.open("DrivingData2/0.png")
+arr = np.array(img)
+print(arr)
+print(len(arr)," ",type(arr))
+print(len(arr[0])," ",type(arr[0]))
+print(len(arr[0][0])," ",type(arr[0][0]))
 
-from lasagne.updates import nesterov_momentum
-
-from nolearn.lasagne import NeuralNet
-from nolearn.lasagne import visualize
-
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
+img = PIL.Image.fromarray(arr)
 
 
-def multilabel_objective(predictions, targets):
-    epsilon = np.float32(1.0e-6)
-    one = np.float32(1.0)
-    pred = T.clip(predictions, epsilon, one - epsilon)
-    return -T.sum(targets * T.log(pred) + (one - targets) * T.log(one - pred), axis=1)
-    
-def squrcost(predictions, targets):
-    return T.sum(((targets - predictions) ** 2)/2)
 
-#Main
-if __name__ == '__main__':
-    print("-Stating Test-")
-        
-net1 = NeuralNet(
-    layers=[('input', layers.InputLayer),
-            
-            ('dense1', layers.DenseLayer),
-
-            ('dense2', layers.DenseLayer),
-
-            ('dense3', layers.DenseLayer),
-
-            ('output', layers.DenseLayer),
-            ],
-            
-    # input layer
-    input_shape=(None, 3),
-
-    # dense
-    dense1_num_units=3,
-    dense1_nonlinearity=lasagne.nonlinearities.sigmoid,    
-    #dense1_W= lasagne.init.GlorotUniform(), 
-
-    # dense
-    dense2_num_units=3,
-    dense2_nonlinearity=lasagne.nonlinearities.sigmoid,    
-    #dense2_W= lasagne.init.GlorotUniform(), 
-
-     # dense
-    dense3_num_units=3,
-    dense3_nonlinearity=lasagne.nonlinearities.sigmoid,    
-    #dense3_W= lasagne.init.GlorotUniform(), 
-
-    # output
-    output_nonlinearity=lasagne.nonlinearities.sigmoid,
-    output_num_units=1,
-   
-
-    # optimization method params
-    #update=nesterov_momentum,
-    update_learning_rate=0.1,
-    #update_momentum = 0.9,
-
-    regression=True,
-    max_epochs=10000,
-    verbose=1,
-    objective_loss_function=squrcost,
-    #custom_score=("validation score", lambda x, y: np.mean(np.abs(x - y))),
-    )
-
-t = np.array([[0,0,0],[0,0,1],[0,1,0],[0,1,1],
-              [1,0,0],[1,0,1],[1,1,0],[1,1,1],
-              [0,0,0],[0,0,1],[0,1,0],[0,1,1],
-              [1,0,0],[1,0,1],[1,1,0],[1,1,1]])
-
-a = np.array([[0],[1],[1],[0],[1],[0],[0],[1],
-              [0],[1],[1],[0],[1],[0],[0],[1]])
-
-net1.fit(t,a)
-pred = net1.predict(t)
-print(pred*100)
+'''
 
 #im=ImageGrab.grab(bbox=(255,147,355,247))
-#im.show()  
+x = 8
+y = 53
+w = 614
+h = 462
+
+im=ImageGrab.grab(bbox=(x,y,w+x,h+y))
+im.show()
+
+center_x = (w+x)/2
+center_y = (h+y)/2
+
+
+
+im1=ImageGrab.grab(bbox=(center_x-100,center_y-100,center_x+100,center_y+100))
+im2 = im1.resize((50,50))
+ 
+im2.show()
+
+
+im3=ImageGrab.grab(bbox=(center_x-200,center_y-200,center_x+200,center_y+200))
+  
+im4 = im3.resize((50,50))
+
 
 #305, 197
 
-
+'''
 #text_file = open("DrivingData\\car_traning_data_1.txt", "w")
 #text_file.write("dafadf")
 #text_file.close()
