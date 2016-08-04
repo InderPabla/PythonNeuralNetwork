@@ -10,6 +10,7 @@
 
 ### GIF of self driving car as seen through view of Convolution Layer 6
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/2.gif)
+- It can be seen that by the 6th layer, the network has learnt to respond with high activation on edges , curves, and the car
 
 ## Video Demo Of Neural Network Trained To Recognize Numbers:
 [![ScreenShot](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/1.PNG)](http://youtu.be/yt6k5CD7e6M)
