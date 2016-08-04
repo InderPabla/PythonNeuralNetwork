@@ -2,7 +2,7 @@
 
 ## Self Driving Car 
 - Basic concept of self driving car using Convolutional Neural Networks 
-- CNN was trained used 500, 50x50 pixel images. 
+- CNN was trained using 500, 50x50 pixel images. 
 - Each image was followed by a output of 2 neurons representing left and right turn 
 
 ### GIF of self driving car
