@@ -243,7 +243,9 @@ elif model_state == 2:
     
     #25x25 fed in
     model.add(ZeroPadding2D((2, 2)))
-    model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
+    model.add(Convolution2D(32, 5, 5,name='conv3_1'))
+    convout3 = Activation('relu')
+    model.add(convout3)
     model.add(ZeroPadding2D((2, 2)))
     model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
 
@@ -331,7 +333,7 @@ while True:
     re_data = np.array([re_data])
     pre = model.predict(re_data)
     
-    dynamic = convout1(np.array(re_data))
+    dynamic = convout3(np.array(re_data))
     dynamic = dynamic[0]
 
     new_dynamic = []
