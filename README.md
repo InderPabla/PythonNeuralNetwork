@@ -8,11 +8,11 @@
 ### GIF of self driving car
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/3.gif)
 
-### GIF of self driving car as seen through view of Convolution Layer 6 - Filer 0
+### GIF of self driving car as seen through view of Convolution Layer 6 - Local receptive field 0
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/2.gif)
 - It can be seen that by the 6th layer, the network has learnt to respond with high activation on edges , curves, and the car
 
-### GIF of self driving car as seen through view of Convolution Layer 2 - Filer 3
+### GIF of self driving car as seen through view of Convolution Layer 2 - Local receptive field 3
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/4.gif)
 
 ## Video Demo Of Neural Network Trained To Recognize Numbers:
