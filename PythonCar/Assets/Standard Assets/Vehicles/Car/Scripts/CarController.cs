@@ -1,5 +1,8 @@
 using System;
 using UnityEngine;
+using System.IO;
+using System.Collections;
+
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -55,6 +58,18 @@ namespace UnityStandardAssets.Vehicles.Car
         public float Revs { get; private set; }
         public float AccelInput { get; private set; }
 
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data";
+
+        Camera camera;
+        int resWidth = 50;
+        int resHeight = 50;
+        int filenumber = 0;
+        bool collect_informaiton = false;
+        FileStream file_stream;
+        StreamWriter stream_writer;
+        float turn = 0;
+        float forward = 0;
         // Use this for initialization
         private void Start()
         {
@@ -69,7 +84,82 @@ namespace UnityStandardAssets.Vehicles.Car
 
             m_Rigidbody = GetComponent<Rigidbody>();
             m_CurrentTorque = m_FullTorqueOverAllWheels - (m_TractionControl*m_FullTorqueOverAllWheels);
+
+
+            camera = Camera.main;
+
+            Invoke("PicTimer", 0.05f);
+
+            file_stream = File.Create(raw_data_file);
+
+            stream_writer = new StreamWriter(file_stream);
         }
+
+        public void Update() {
+            if (Input.GetKeyDown(KeyCode.P)) {
+                collect_informaiton = !collect_informaiton;
+                if (collect_informaiton == false) {
+                    stream_writer.Flush();
+                    file_stream.Close();
+                    stream_writer.Close();
+                }
+            }
+        }
+
+        public void PicTimer() {
+            if (collect_informaiton == true) {
+                TakePicture();
+            }
+            Invoke("PicTimer", 0.05f);
+        }
+
+        public void TakePicture() {
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+            camera.targetTexture = rt;
+            Texture2D screenShot = new Texture2D(200, 200, TextureFormat.RGB24, false);
+            camera.Render();
+            RenderTexture.active = rt;
+     
+
+            screenShot.ReadPixels(new Rect((Screen.width/2) - 100, (Screen.height /2)-130,200, 200), 0, 0);
+
+            screenShot = ScaleTexture(screenShot, 50,50);
+
+
+            camera.targetTexture = null;
+            RenderTexture.active = null;
+            Destroy(rt);
+            byte[] bytes = screenShot.EncodeToPNG();
+            string filename = picture_location + "\\" + filenumber + ".png";
+
+            System.IO.File.WriteAllBytes(filename, bytes);
+
+            Vector3 angular_velo = m_Rigidbody.angularVelocity;
+            Vector3 velo = m_Rigidbody.velocity;
+            //Debug.Log(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle);
+            
+            stream_writer.WriteLine(angular_velo.y+" "+velo.sqrMagnitude+" "+m_SteerAngle+" "+forward + " "+turn);
+
+            filenumber++;
+        }
+
+        private Texture2D ScaleTexture(Texture2D source, int targetWidth, int targetHeight)
+        {
+            Texture2D result = new Texture2D(targetWidth, targetHeight, source.format, false);
+            float incX = (1.0f / (float)targetWidth);
+            float incY = (1.0f / (float)targetHeight);
+            for (int i = 0; i < result.height; ++i)
+            {
+                for (int j = 0; j < result.width; ++j)
+                {
+                    Color newColor = source.GetPixelBilinear((float)j / (float)result.width, (float)i / (float)result.height);
+                    result.SetPixel(j, i, newColor);
+                }
+            }
+            result.Apply();
+            return result;
+        }
+
 
 
         private void GearChanging()
@@ -125,9 +215,11 @@ namespace UnityStandardAssets.Vehicles.Car
             Revs = ULerp(revsRangeMin, revsRangeMax, m_GearFactor);
         }
 
-
+       
         public void Move(float steering, float accel, float footbrake, float handbrake)
         {
+            turn = steering;
+            forward = accel;
             for (int i = 0; i < 4; i++)
             {
                 Quaternion quat;
@@ -145,18 +237,17 @@ namespace UnityStandardAssets.Vehicles.Car
 
             //Set the steer on the front wheels.
             //Assuming that wheels 0 and 1 are the front wheels.
-            m_SteerAngle = steering*/*m_MaximumSteerAngle*/4;
+            m_SteerAngle = steering*(m_MaximumSteerAngle)/*4*/;
             m_WheelColliders[0].steerAngle = m_SteerAngle;
             m_WheelColliders[1].steerAngle = m_SteerAngle;
-
+            
             SteerHelper();
             ApplyDrive(accel, footbrake);
             CapSpeed();
 
             //Set the handbrake.
             //Assuming that wheels 2 and 3 are the rear wheels.
-            if (handbrake > 0f)
-            {
+            if (handbrake > 0f) {
                 var hbTorque = handbrake*m_MaxHandbrakeTorque;
                 m_WheelColliders[2].brakeTorque = hbTorque;
                 m_WheelColliders[3].brakeTorque = hbTorque;

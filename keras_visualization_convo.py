@@ -2,7 +2,6 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, ZeroPadding2D, MaxPooling2D
 from keras import backend as K
-import h5py
 import numpy as np
 from scipy.misc import imsave
 from PIL import Image
@@ -81,8 +80,8 @@ print('Model loaded.')
 layer_dict = dict([(layer.name, layer) for layer in model.layers])
 
 
-layer_name = 'conv3_2'
-filter_index = 1
+layer_name = 'conv1_2'
+filter_index = 3
 
 # build a loss function that maximizes the activation
 # of the nth filter of the layer considered
@@ -126,7 +125,7 @@ def deprocess_image(x):
     return x
 
 file_number = 0
-for l in range(0,400):
+for l in range(0,1):
     print(l)
     file_number = l
     file = 'DrivingData2/'+str(file_number)+'.png'
