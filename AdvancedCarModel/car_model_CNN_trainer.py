@@ -6,6 +6,7 @@ from PIL import Image
 from PIL import ImageGrab
 from PIL import ImageDraw
 import numpy as np 
+import os.path
 
 '''
 get image data, where each image is broken down into it's RGB components and 
@@ -95,35 +96,6 @@ def get_raw_data(count, raw_file, raw_input_size, raw_output_size):
     
 
 def create_model():
-    '''
-    # frame size
-    nrows = 50
-    ncols = 50
-    
-    # accel, speed, distance, angle
-    real_in = Input(shape=(3,), name='real_input')
-    
-    # video frame in, grayscale
-    frame_in = Input(shape=(3,nrows,ncols))
-    
-    # convolution for image input
-    conv = Convolution2D(4,5,5,border_mode='same',
-            activation='relu')
-    conv_l = conv(frame_in)
-    pool_l = MaxPooling2D(pool_size=(2,2))(conv_l)
-    
-    flat = Flatten()(pool_l)
-    
-    M = merge([flat,real_in], mode='concat', concat_axis=1)
-    
-    Accel = Dense(1, activation='linear')(M)
-    Steer = Dense(1, activation='linear')(M)
-    
-    model = Model(input=[real_in, frame_in], output=[Accel,Steer])
-    return model
-    '''
-    
-    
     image_model = Sequential()
     image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 50, 50)))   
    
@@ -147,49 +119,63 @@ def create_model():
     image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
     image_model.add(ZeroPadding2D((2, 2)))
     image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
-
+    
     image_model.add(Dropout(0.25))
     
     image_model.add(Flatten())
     
     print(image_model.output_shape)
     
+    
     multi_layer_model = Sequential()  
-    multi_layer_model.add(Activation('linear', input_shape=(1, 3)))
-    #multi_layer_model.add(Dense(512, batch_input_shape=(1, 3)))
-    #multi_layer_model.add(Activation('tanh'))
     
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 3)))
+    multi_layer_model.add(Activation('tanh'))
     multi_layer_model.add(Dense(512))
     multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(512))
-    multi_layer_model.add(Activation('tanh'))
-    
-    multi_layer_model.add(Dense(2))
-    multi_layer_model.add(Activation('tanh')) 
     
     print(multi_layer_model.output_shape)
     
+    merged = Merge([image_model, multi_layer_model], mode='concat')
+
+    final_model = Sequential()
+    final_model.add(merged)
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
     
-weights_file = "Data/car_model_CNN_weights.h5"
-raw_data_file = "Data/raw_data.txt"
-image_data_location = "Data/"
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(2))
+    final_model.add(Activation('tanh'))  
+    
+    return final_model
+
+predict_mode = True
+weights_file = "Data1/car_model_CNN_weights.h5"
+raw_data_file = "Data2/raw_data.txt"
+image_data_location = "Data2/"
 sample_count= 500
+bactch_itteration_count = 100
+epoch_count = 10
 res_x = 50
 res_y = 50
 raw_input_size = 3
@@ -199,18 +185,33 @@ train_image_X = get_image_data(sample_count,image_data_location,res_x,res_y)
 
 train_raw_X, train_raw_Y = get_raw_data(sample_count, raw_data_file, raw_input_size, raw_output_size)
 
-#test_set = [train_raw_X[0], train_image_X[0]]
-#print (test_set)
-
 model = create_model()
 
-#opt = SGD(lr=0.1)
-#model.compile(loss = "mean_squared_error", optimizer = opt)
+if(os.path.exists(weights_file)):
+    print("already exsits")
+    model.load_weights(weights_file) 
 
-#test_set = [np.array([train_raw_X[0]]), np.array([train_image_X[0]])]
-#test_set = [train_raw_X[0], train_image_X[0]]
+opt = SGD(lr=0.000000000001, decay=0.0, momentum=0.9, nesterov=True)
+model.compile(loss = "mean_squared_error", optimizer = opt)
 
+if predict_mode == False:
+    for i in range(0,bactch_itteration_count):
+        model.fit([np.array(train_image_X), np.array(train_raw_X)], np.array(train_raw_Y), nb_epoch=epoch_count,verbose = 2)   
+        model.save_weights(weights_file) 
+        print("Itteration: ",i," - Model Saved")
+else:
+    predict_answer = model.predict([np.array(train_image_X), np.array(train_raw_X)])
+    for i in range(200,300):
+        prediction = predict_answer[i]*100
+        prediction[0] = int(prediction[0])
+        prediction[1] = int(prediction[1])
+        real = train_raw_Y[i]*100
+        real[0] = int(real[0])
+        real[1] = int(real[1])
+        
+        error = real - prediction
+        error[0] = abs(error[0])
+        error[1] = abs(error[1])
+        
+        print(i," ",real," ",prediction," ",error)
 
-
-#hist = model.fit(test_set, np.array([train_raw_Y[0]]), nb_epoch=1,verbose = 2)   
-#pre = model.predict([train_raw_X[0], train_image_X[0]])
