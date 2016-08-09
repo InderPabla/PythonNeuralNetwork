@@ -1,8 +1,12 @@
 using System;
 using UnityEngine;
 using System.IO;
-using System.Collections;
-
+using System.Threading;
+using System.Security.Permissions;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
+using System.Collections.Generic;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -58,8 +62,14 @@ namespace UnityStandardAssets.Vehicles.Car
         public float Revs { get; private set; }
         public float AccelInput { get; private set; }
 
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data";
+
+
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data2\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data2";
+        string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
         int resWidth = 50;
@@ -70,60 +80,73 @@ namespace UnityStandardAssets.Vehicles.Car
         StreamWriter stream_writer;
         float turn = 0;
         float forward = 0;
-        // Use this for initialization
-        private void Start()
+        bool initComplete = false;
+        Thread thread;
+        TcpListener serverSocket;
+        TcpClient acceptSocket;
+        IPAddress address;
+        byte[] imageBytes;
+        bool isCaptured = true;
+        float angularVelocity = 0;
+        float velocity = 0;
+        float outTurning = 0;
+        float outForward = 0;
+        NetworkStream stream; 
+
+        public void Update()
         {
-            m_WheelMeshLocalRotations = new Quaternion[4];
-            for (int i = 0; i < 4; i++)
+
+            if (initComplete == true && Input.GetKeyDown(KeyCode.P))
             {
-                m_WheelMeshLocalRotations[i] = m_WheelMeshes[i].transform.localRotation;
-            }
-            m_WheelColliders[0].attachedRigidbody.centerOfMass = m_CentreOfMassOffset;
-
-            m_MaxHandbrakeTorque = float.MaxValue;
-
-            m_Rigidbody = GetComponent<Rigidbody>();
-            m_CurrentTorque = m_FullTorqueOverAllWheels - (m_TractionControl*m_FullTorqueOverAllWheels);
-
-
-            camera = Camera.main;
-
-            Invoke("PicTimer", 0.05f);
-
-            file_stream = File.Create(raw_data_file);
-
-            stream_writer = new StreamWriter(file_stream);
-        }
-
-        public void Update() {
-            if (Input.GetKeyDown(KeyCode.P)) {
                 collect_informaiton = !collect_informaiton;
-                if (collect_informaiton == false) {
+                if (collect_informaiton == false)
+                {
                     stream_writer.Flush();
                     file_stream.Close();
                     stream_writer.Close();
                 }
             }
+
+            if (isCaptured == false) {
+                angularVelocity = m_Rigidbody.angularVelocity.y;
+                velocity = m_Rigidbody.velocity.sqrMagnitude;
+                CaptureImage();
+             
+                isCaptured = true;
+            }
+
+            Move(outTurning, outForward, outForward, 0f);
         }
 
-        public void PicTimer() {
-            if (collect_informaiton == true) {
+        public void InitilizeDataCollection()
+        {
+            Invoke("PicTimer", 0.05f);
+            file_stream = File.Create(raw_data_file);
+            stream_writer = new StreamWriter(file_stream);
+            initComplete = true;
+        }
+
+        public void PicTimer()
+        {
+            if (collect_informaiton == true)
+            {
                 TakePicture();
             }
             Invoke("PicTimer", 0.05f);
         }
 
-        public void TakePicture() {
+        public void TakePicture()
+        {
             RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             camera.targetTexture = rt;
             Texture2D screenShot = new Texture2D(200, 200, TextureFormat.RGB24, false);
             camera.Render();
             RenderTexture.active = rt;
-     
 
-            screenShot.ReadPixels(new Rect((Screen.width/2) - 100, (Screen.height /2)-130,200, 200), 0, 0);
 
-            screenShot = ScaleTexture(screenShot, 50,50);
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);
+
+            screenShot = ScaleTexture(screenShot, 50, 50);
 
 
             camera.targetTexture = null;
@@ -137,8 +160,8 @@ namespace UnityStandardAssets.Vehicles.Car
             Vector3 angular_velo = m_Rigidbody.angularVelocity;
             Vector3 velo = m_Rigidbody.velocity;
             //Debug.Log(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle);
-            
-            stream_writer.WriteLine(angular_velo.y+" "+velo.sqrMagnitude+" "+m_SteerAngle+" "+forward + " "+turn);
+
+            stream_writer.WriteLine(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle + " " + forward + " " + turn);
 
             filenumber++;
         }
@@ -159,6 +182,185 @@ namespace UnityStandardAssets.Vehicles.Car
             result.Apply();
             return result;
         }
+
+        public void Worker()
+        {
+            address = Dns.GetHostEntry("localhost").AddressList[0];
+            serverSocket = new TcpListener(address,12345);
+            serverSocket.Start();
+
+            acceptSocket = serverSocket.AcceptTcpClient();
+            stream = acceptSocket.GetStream();
+            Debug.Log("Connected");
+
+            int numberOfTimes = 10;
+            while (true)
+            {
+                numberOfTimes++;
+                //imageBytes  = CaptureImage();
+                isCaptured = false;
+                while (isCaptured == false)
+                {
+                    //wait
+                }
+
+                
+                
+                float[] data = new float[3];
+
+                data[0] = angularVelocity;
+                data[1] = velocity;
+                data[2] = m_SteerAngle;
+
+                byte[] convertedData = new byte[4 * data.Length];
+                Buffer.BlockCopy(data, 0, convertedData, 0, convertedData.Length);
+                stream.Write(convertedData, 0, convertedData.Length);
+
+                //Debug.Log("Sent Float Data");
+
+                byte[] bytes = new byte[256];
+
+                stream.Read(bytes, 0, bytes.Length);
+                string mstrMessage = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                //Debug.Log(mstrMessage);
+
+                double[] doubles = Array.ConvertAll(mstrMessage.Split(' '), new Converter<string, double>(Double.Parse));
+                Debug.Log(doubles[0] + " " + doubles[1]);
+                outForward = (float)doubles[0];
+                outTurning = (float)doubles[1];
+
+                /*if (outForward < 0)
+                    outForward = 0;*/
+                /*else if (outForward > 0.85)
+                    outForward = 1;
+                else
+                    outForward = 0;*/
+
+                /*else
+                    outForward = 1;*/
+                if (outForward < 0)
+                    outForward = 0;
+
+                if (outTurning < -0.75)
+                    outTurning = -1;
+                else if (outTurning > 0.75)
+                    outTurning = 1;
+                
+                /*string[] myArray = mstrMessage.Split(' ');
+                float[] output = float.Parse(mstrMessage);*/
+
+            }
+
+            //Debug.Log("File Lenght: "+ imageBytes.Length);
+            //stream.Write(imageBytes, 0, imageBytes.Length);
+
+
+
+            /*List<float> data = new List<float>();
+            data.Add(1.23f);
+            data.Add(-4.5f);
+            data.Add(0.043f);*/
+
+
+
+
+            /*byte[] bytes = new byte[256];
+            NetworkStream stream = acceptSocket.GetStream();
+            stream.Read(bytes, 0, bytes.Length);
+            string mstrMessage = Encoding.ASCII.GetString(bytes, 0, bytes.Length);       
+            Debug.Log(mstrMessage);*/
+
+
+            /*while (true)
+            {
+                Debug.Log("dafdafaf");
+                Thread.Sleep(100);
+            }*/
+        }
+
+        public void CaptureImage() {
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+            camera.targetTexture = rt;
+            Texture2D screenShot = new Texture2D(200, 200, TextureFormat.RGB24, false);
+            camera.Render();
+            RenderTexture.active = rt;
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);
+            screenShot = ScaleTexture(screenShot, 50, 50);
+            camera.targetTexture = null;
+            RenderTexture.active = null;
+            Destroy(rt);
+
+            byte[] bytes = /*screenShot.GetRawTextureData();*/screenShot.EncodeToPNG();
+            System.IO.File.WriteAllBytes(real_time_image, bytes); 
+            //return bytes;
+        }
+
+        public void InitilizeWork()
+        {
+            //InitilizeDataCollection();   //<< NEEDS TO BE CALLED TO START TAKING PICTURES
+            Application.runInBackground = true;
+            camera = Camera.main;
+            thread = new Thread(Worker);
+            thread.IsBackground = true; //not a dameon thread, must run in foreground
+            thread.Start(); 
+        }
+
+        void OnApplicationQuit()
+        {
+            if (thread.IsAlive)
+            {
+                try
+                {
+                    serverSocket.Stop();
+                    stream.Close();
+                    acceptSocket.Close();
+                }
+                catch (SocketException error) {
+                    Debug.Log(error);
+                }
+
+                try
+                {
+                    KillTheThread();
+                    Debug.Log(thread.IsAlive); //true (must be false)
+                }
+                catch (Exception error)
+                {
+                    Debug.Log(error);
+                }
+            }
+        }
+
+        [SecurityPermissionAttribute(SecurityAction.Demand, ControlThread = true)]
+        private void KillTheThread()
+        {
+            thread.Abort();
+        }
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE ENDS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE ENDS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE ENDS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+        private void Start()
+        {
+            m_WheelMeshLocalRotations = new Quaternion[4];
+            for (int i = 0; i < 4; i++)
+            {
+                m_WheelMeshLocalRotations[i] = m_WheelMeshes[i].transform.localRotation;
+            }
+            m_WheelColliders[0].attachedRigidbody.centerOfMass = m_CentreOfMassOffset;
+
+            m_MaxHandbrakeTorque = float.MaxValue;
+
+            m_Rigidbody = GetComponent<Rigidbody>();
+            m_CurrentTorque = m_FullTorqueOverAllWheels - (m_TractionControl*m_FullTorqueOverAllWheels);
+
+            InitilizeWork();
+        }
+
+
+
 
 
 
@@ -218,6 +420,7 @@ namespace UnityStandardAssets.Vehicles.Car
        
         public void Move(float steering, float accel, float footbrake, float handbrake)
         {
+            //Debug.Log(steering+" "+ accel+" "+footbrake+" "+handbrake);
             turn = steering;
             forward = accel;
             for (int i = 0; i < 4; i++)

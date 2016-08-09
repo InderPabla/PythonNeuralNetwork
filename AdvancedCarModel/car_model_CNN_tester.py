@@ -1,12 +1,11 @@
-from keras.models import Sequential, Model
+from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Merge
-from keras.layers import Convolution2D, ZeroPadding2D, MaxPooling2D, merge, Input
-from keras.optimizers import SGD
+from keras.layers import Convolution2D, ZeroPadding2D, MaxPooling2D
 from PIL import Image
-from PIL import ImageGrab
-from PIL import ImageDraw
 import numpy as np 
 import os.path
+import socket
+import struct
 
 def create_model():
     image_model = Sequential()
@@ -79,19 +78,82 @@ def create_model():
 
 # Main Starts Here
 
+weights_file = "Data1/car_model_CNN_weights.h5"
+image_file = "real_time.png"
+res_x = 50
+res_y = 50
 model = create_model()
 
+if(os.path.exists(weights_file)):
+    print("already exsits")
+    model.load_weights(weights_file) 
+    
+clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientsocket.connect(('localhost', 12345))
 
-'''
-x = 8
-y = 53
-w = 614
-h = 462
- 
-center_x = (w+x)/2
-center_y = (h+y)/2
-
-im=ImageGrab.grab(bbox=(center_x-100,center_y-100,center_x+100,center_y+100))
-im = im.resize((50,50))
-im.save("x.png")
-'''
+number_of_times = 10
+while(True):
+    number_of_times = number_of_times +1
+    expected_length = 12
+    recieved_length = 0
+    data = []
+    
+    while(recieved_length  < expected_length ):
+        data = clientsocket.recv(12)
+        recieved_length+= len(data)
+        '''
+        print(type(data))
+        print(len(data))
+        print(data)
+        '''
+        
+    real_data = []   
+    if(len(data) == 12):
+        a,b,c = struct.unpack('fff', bytearray(bytes(data)))
+        real_data = np.array([a,b,c],dtype=np.float32)
+        #print(real_data)
+        
+    stream = Image.open(image_file)
+    raw_image_data = list(stream.getdata())
+    raw_RGB = [[],[],[]] 
+    raw_count = 0
+    
+    # nested for loop for visual appeal, running (rex_x * rex_y) number of 
+    #times
+    for y in range(0,res_y):
+        
+        # extracting RGB, one row at a tile
+        red_row = []
+        green_row = []
+        blue_row = []
+    
+        #run through rows
+        for x in range(0,res_x):
+            
+            # get RGB values and scale them between 0.0 to 1.0
+            red = (raw_image_data[raw_count][0]/255.0)
+            green = (raw_image_data[raw_count][1]/255.0)
+            blue = (raw_image_data[raw_count][2]/255.0)
+                      
+            # append RGB to rows
+            red_row.append(red)
+            green_row.append(green)
+            blue_row.append(blue)
+            
+    
+            #increment counter to move to the next data set of tuples
+            raw_count = raw_count + 1 
+        
+        #append RGB rows to their corresponding location in raw RGB array
+        raw_RGB[0].append(red_row)
+        raw_RGB[1].append(green_row)
+        raw_RGB[2].append(blue_row)
+      
+    raw_RGB = np.array(raw_RGB,dtype = np.float32)
+    
+    pre = model.predict([np.array([raw_RGB]),np.array([real_data])])
+    print(pre)
+    pre = pre[0]
+    message = str(pre[0])+" "+str(pre[1])
+    
+    clientsocket.send(message.encode())

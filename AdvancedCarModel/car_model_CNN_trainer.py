@@ -194,6 +194,9 @@ if(os.path.exists(weights_file)):
 opt = SGD(lr=0.000000000001, decay=0.0, momentum=0.9, nesterov=True)
 model.compile(loss = "mean_squared_error", optimizer = opt)
 
+# THIS MODEL MIGHT BE HARDER THAN REAL SELF DRIVING CAR 
+# TRY OUT 64 BIT FLOAT
+
 if predict_mode == False:
     for i in range(0,bactch_itteration_count):
         model.fit([np.array(train_image_X), np.array(train_raw_X)], np.array(train_raw_Y), nb_epoch=epoch_count,verbose = 2)   
