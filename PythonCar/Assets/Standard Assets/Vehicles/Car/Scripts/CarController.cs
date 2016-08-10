@@ -93,7 +93,7 @@ namespace UnityStandardAssets.Vehicles.Car
         float outForward = 0;
         NetworkStream stream; 
 
-        public void Update()
+        public void FixedUpdate()
         {
 
             if (initComplete == true && Input.GetKeyDown(KeyCode.P))
@@ -225,7 +225,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 //Debug.Log(mstrMessage);
 
                 double[] doubles = Array.ConvertAll(mstrMessage.Split(' '), new Converter<string, double>(Double.Parse));
-                Debug.Log(doubles[0] + " " + doubles[1]);
+                //Debug.Log(doubles[0] + " " + doubles[1]);
                 outForward = (float)doubles[0];
                 outTurning = (float)doubles[1];
 

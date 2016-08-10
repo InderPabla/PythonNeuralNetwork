@@ -6,7 +6,7 @@ import numpy as np
 import os.path
 import socket
 import struct
-
+import time
 def create_model():
     image_model = Sequential()
     image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 50, 50)))   
@@ -87,13 +87,13 @@ model = create_model()
 if(os.path.exists(weights_file)):
     print("already exsits")
     model.load_weights(weights_file) 
-    
+
+time.sleep(3)  
+
 clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientsocket.connect(('localhost', 12345))
 
-number_of_times = 10
 while(True):
-    number_of_times = number_of_times +1
     expected_length = 12
     recieved_length = 0
     data = []
@@ -152,7 +152,7 @@ while(True):
     raw_RGB = np.array(raw_RGB,dtype = np.float32)
     
     pre = model.predict([np.array([raw_RGB]),np.array([real_data])])
-    print(pre)
+    #print(pre)
     pre = pre[0]
     message = str(pre[0])+" "+str(pre[1])
     
