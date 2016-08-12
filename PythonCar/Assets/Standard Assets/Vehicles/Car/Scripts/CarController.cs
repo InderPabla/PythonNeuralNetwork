@@ -67,15 +67,15 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data2\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data2";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data8\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data8";
         string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
         int resWidth = 50;
         int resHeight = 50;
         int filenumber = 0;
-        bool collect_informaiton = false;
+        bool collectInformaiton = false;
         FileStream file_stream;
         StreamWriter stream_writer;
         float turn = 0;
@@ -91,15 +91,18 @@ namespace UnityStandardAssets.Vehicles.Car
         float velocity = 0;
         float outTurning = 0;
         float outForward = 0;
-        NetworkStream stream; 
+        NetworkStream stream;
+        bool realTimeTraningMode = false;
+        bool dataCollectMode = false;
+        float recordSpeed = 0.05f;
 
         public void FixedUpdate()
         {
 
             if (initComplete == true && Input.GetKeyDown(KeyCode.P))
             {
-                collect_informaiton = !collect_informaiton;
-                if (collect_informaiton == false)
+                collectInformaiton = !collectInformaiton;
+                if (collectInformaiton == false)
                 {
                     stream_writer.Flush();
                     file_stream.Close();
@@ -115,12 +118,13 @@ namespace UnityStandardAssets.Vehicles.Car
                 isCaptured = true;
             }
 
-            Move(outTurning, outForward, outForward, 0f);
+            if (initComplete == false && realTimeTraningMode == false)
+                Move(outTurning, outForward, outForward, 0f);
         }
 
         public void InitilizeDataCollection()
         {
-            Invoke("PicTimer", 0.05f);
+            Invoke("PicTimer", 0.1f);
             file_stream = File.Create(raw_data_file);
             stream_writer = new StreamWriter(file_stream);
             initComplete = true;
@@ -128,11 +132,11 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public void PicTimer()
         {
-            if (collect_informaiton == true)
+            if (collectInformaiton == true)
             {
                 TakePicture();
             }
-            Invoke("PicTimer", 0.05f);
+            Invoke("PicTimer", recordSpeed);
         }
 
         public void TakePicture()
@@ -161,8 +165,8 @@ namespace UnityStandardAssets.Vehicles.Car
             Vector3 velo = m_Rigidbody.velocity;
             //Debug.Log(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle);
 
-            stream_writer.WriteLine(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle + " " + forward + " " + turn);
-
+            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude) + " " + (m_SteerAngle) + " " + forward + " " + turn);
+            Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude) + " " + (m_SteerAngle) + " " + forward + " " + turn);
             filenumber++;
         }
 
@@ -193,89 +197,56 @@ namespace UnityStandardAssets.Vehicles.Car
             stream = acceptSocket.GetStream();
             Debug.Log("Connected");
 
-            int numberOfTimes = 10;
             while (true)
             {
-                numberOfTimes++;
-                //imageBytes  = CaptureImage();
+
                 isCaptured = false;
                 while (isCaptured == false)
                 {
                     //wait
                 }
 
-                
-                
-                float[] data = new float[3];
+
+                int dataSize = 5;
+                if (realTimeTraningMode == false)
+                    dataSize = 3;
+
+                float[] data = new float[dataSize];
 
                 data[0] = angularVelocity;
-                data[1] = velocity;
-                data[2] = m_SteerAngle;
+                data[1] = velocity; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
+                data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
+
+                if (realTimeTraningMode == true)
+                {
+                    data[3] = forward;
+                    data[4] = turn;
+                }
 
                 byte[] convertedData = new byte[4 * data.Length];
                 Buffer.BlockCopy(data, 0, convertedData, 0, convertedData.Length);
                 stream.Write(convertedData, 0, convertedData.Length);
 
-                //Debug.Log("Sent Float Data");
-
                 byte[] bytes = new byte[256];
 
                 stream.Read(bytes, 0, bytes.Length);
                 string mstrMessage = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-                //Debug.Log(mstrMessage);
 
                 double[] doubles = Array.ConvertAll(mstrMessage.Split(' '), new Converter<string, double>(Double.Parse));
-                //Debug.Log(doubles[0] + " " + doubles[1]);
                 outForward = (float)doubles[0];
                 outTurning = (float)doubles[1];
 
                 /*if (outForward < 0)
-                    outForward = 0;*/
-                /*else if (outForward > 0.85)
-                    outForward = 1;
-                else
-                    outForward = 0;*/
+                    outForward = 0f;*/
 
-                /*else
-                    outForward = 1;*/
-                if (outForward < 0)
-                    outForward = 0;
-
-                if (outTurning < -0.75)
+                /*if (outTurning < -0.5)
                     outTurning = -1;
-                else if (outTurning > 0.75)
+                else if (outTurning > 0.5)
                     outTurning = 1;
-                
-                /*string[] myArray = mstrMessage.Split(' ');
-                float[] output = float.Parse(mstrMessage);*/
-
+                else
+                    outTurning = 0f;*/
+                Debug.Log(outForward+" "+outTurning);
             }
-
-            //Debug.Log("File Lenght: "+ imageBytes.Length);
-            //stream.Write(imageBytes, 0, imageBytes.Length);
-
-
-
-            /*List<float> data = new List<float>();
-            data.Add(1.23f);
-            data.Add(-4.5f);
-            data.Add(0.043f);*/
-
-
-
-
-            /*byte[] bytes = new byte[256];
-            NetworkStream stream = acceptSocket.GetStream();
-            stream.Read(bytes, 0, bytes.Length);
-            string mstrMessage = Encoding.ASCII.GetString(bytes, 0, bytes.Length);       
-            Debug.Log(mstrMessage);*/
-
-
-            /*while (true)
-            {
-                Debug.Log("dafdafaf");
-                Thread.Sleep(100);
-            }*/
         }
 
         public void CaptureImage() {
@@ -297,12 +268,19 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public void InitilizeWork()
         {
-            //InitilizeDataCollection();   //<< NEEDS TO BE CALLED TO START TAKING PICTURES
             Application.runInBackground = true;
             camera = Camera.main;
-            thread = new Thread(Worker);
-            thread.IsBackground = true; //not a dameon thread, must run in foreground
-            thread.Start(); 
+
+            if (dataCollectMode == true)
+            {
+                InitilizeDataCollection();   //<< NEEDS TO BE CALLED TO START TAKING PICTURES
+            }
+            else
+            {
+                thread = new Thread(Worker);
+                thread.IsBackground = true; //not a dameon thread, must run in foreground
+                thread.Start();
+            }
         }
 
         void OnApplicationQuit()

@@ -96,91 +96,90 @@ print('Model loaded.')
 layer_dict = dict([(layer.name, layer) for layer in image_model.layers])
 #2-2 4
 
-layer_name = 'conv2_2'
-filter_index = 4
+layer_name = 'conv3_1'
+filter_index = 0
 
-# build a loss function that maximizes the activation
-# of the nth filter of the layer considered
-layer_output = layer_dict[layer_name].output
-loss = K.mean(layer_output[:, filter_index, :, :])
-
-# compute the gradient of the input picture wrt this loss
-grads = K.gradients(loss, input_img)[0]
-
-# normalization trick: we normalize the gradient
-grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
-
-# this function returns the loss and grads given the input picture
-iterate = K.function([input_img], [loss, grads])
-
-
-
-
-
-
-input_img_data = np.random.random((1, 3, 50, 50)) * 20 + 50.
-# run gradient ascent for 20 steps
-for i in range(20):
-    loss_value, grads_value = iterate([input_img_data])
-    input_img_data += grads_value * 20
-
-def deprocess_image(x):
-    # normalize tensor: center on 0., ensure std is 0.1
-    x -= x.mean()
-    x /= (x.std() + 1e-5)
-    x *= 0.1
-
-    # clip to [0, 1]
-    x += 0.5
-    x = np.clip(x, 0, 1)
-
-    # convert to RGB array
-    x *= 255
-    x = x.transpose((1, 2, 0))
-    x = np.clip(x, 0, 255).astype('uint8')
-    return x
-
-file_number = 0
-for l in range(0,400):
-    print(l)
-    file_number = l
-    file = 'Data1/'+str(file_number)+'.png'
-    im = Image.open(file)
-    data = list(im.getdata())
+for ac in range(9,10):
+    filter_index = ac
+    # build a loss function that maximizes the activation
+    # of the nth filter of the layer considered
+    layer_output = layer_dict[layer_name].output
+    loss = K.mean(layer_output[:, filter_index, :, :])
     
-    re_data = [[],[],[]]
-    k = 0  
-    for i in range(0,50):
-        red_row = []
-        green_row = []
-        blue_row = []
+    # compute the gradient of the input picture wrt this loss
+    grads = K.gradients(loss, input_img)[0]
     
-        for j in range(0,50):
-            red = data[k][0]/1.0
-            green = data[k][1]/1.0
-            blue = data[k][2]/1.0
+    # normalization trick: we normalize the gradient
+    grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
     
-            red_row.append(red)
-            green_row.append(green)
-            blue_row.append(blue)
+    # this function returns the loss and grads given the input picture
+    iterate = K.function([input_img], [loss, grads])
     
-            k = k + 1
-        re_data[0].append(red_row)
-        re_data[1].append(green_row)
-        re_data[2].append(blue_row)
     
-    re_data = np.array([re_data])
+    input_img_data = np.random.random((1, 3, 50, 50)) * 20 + 50.
+    # run gradient ascent for 20 steps
+    for i in range(20):
+        loss_value, grads_value = iterate([input_img_data])
+        input_img_data += grads_value * 20
     
-    for i in range(25):
-        loss_value, grads_value = iterate([re_data])
-        re_data += grads_value * 20
+    def deprocess_image(x):
+        # normalize tensor: center on 0., ensure std is 0.1
+        x -= x.mean()
+        x /= (x.std() + 1e-5)
+        x *= 0.1
     
+        # clip to [0, 1]
+        x += 0.5
+        x = np.clip(x, 0, 1)
+    
+        # convert to RGB array
+        x *= 255
+        x = x.transpose((1, 2, 0))
+        x = np.clip(x, 0, 255).astype('uint8')
+        return x
+    
+    file_number = 0
+    
+    for l in range(340,360):
+        print(l)
+        file_number = l
+        file = 'Data1/'+str(file_number)+'.png'
+        im = Image.open(file)
+        data = list(im.getdata())
         
-    #img = input_img_data[0]
-    img = re_data[0]
+        re_data = [[],[],[]]
+        k = 0  
+        for i in range(0,50):
+            red_row = []
+            green_row = []
+            blue_row = []
         
-    img = deprocess_image(img)
-    imsave('Data1/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
+            for j in range(0,50):
+                red = data[k][0]/1.0
+                green = data[k][1]/1.0
+                blue = data[k][2]/1.0
+        
+                red_row.append(red)
+                green_row.append(green)
+                blue_row.append(blue)
+        
+                k = k + 1
+            re_data[0].append(red_row)
+            re_data[1].append(green_row)
+            re_data[2].append(blue_row)
+        
+        re_data = np.array([re_data])
+        
+        for i in range(25):
+            loss_value, grads_value = iterate([re_data])
+            re_data += grads_value * 20
+        
+            
+        #img = input_img_data[0]
+        img = re_data[0]
+            
+        img = deprocess_image(img)
+        imsave('Data1/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
 
 
 
