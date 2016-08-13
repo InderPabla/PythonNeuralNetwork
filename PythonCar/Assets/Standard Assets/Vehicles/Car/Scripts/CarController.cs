@@ -165,8 +165,8 @@ namespace UnityStandardAssets.Vehicles.Car
             Vector3 velo = m_Rigidbody.velocity;
             //Debug.Log(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle);
 
-            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude) + " " + (m_SteerAngle) + " " + forward + " " + turn);
-            Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude) + " " + (m_SteerAngle) + " " + forward + " " + turn);
+            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ + forward + " " + turn);
+            Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ + forward + " " + turn);
             filenumber++;
         }
 
@@ -209,13 +209,13 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 int dataSize = 5;
                 if (realTimeTraningMode == false)
-                    dataSize = 3;
+                    dataSize = 2;
 
                 float[] data = new float[dataSize];
 
                 data[0] = angularVelocity;
-                data[1] = velocity; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
-                data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
+                data[1] = velocity/100f; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
+                //data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
 
                 if (realTimeTraningMode == true)
                 {
@@ -236,15 +236,19 @@ namespace UnityStandardAssets.Vehicles.Car
                 outForward = (float)doubles[0];
                 outTurning = (float)doubles[1];
 
-                /*if (outForward < 0)
-                    outForward = 0f;*/
+                if (outForward < 0.85f)
+                    outForward = -1f;
+                else if (outForward > 0.88)
+                    outForward = 1;
+                else
+                    outForward = 0f;
 
-                /*if (outTurning < -0.5)
+                if (outTurning < -0.75f)
                     outTurning = -1;
-                else if (outTurning > 0.5)
+                else if (outTurning > 0.75f)
                     outTurning = 1;
                 else
-                    outTurning = 0f;*/
+                    outTurning = 0f;
                 Debug.Log(outForward+" "+outTurning);
             }
         }
@@ -421,7 +425,7 @@ namespace UnityStandardAssets.Vehicles.Car
             m_SteerAngle = steering*(m_MaximumSteerAngle)/*4*/;
             m_WheelColliders[0].steerAngle = m_SteerAngle;
             m_WheelColliders[1].steerAngle = m_SteerAngle;
-            
+
             SteerHelper();
             ApplyDrive(accel, footbrake);
             CapSpeed();
@@ -486,7 +490,7 @@ namespace UnityStandardAssets.Vehicles.Car
                     break;
 
                 case CarDriveType.RearWheelDrive:
-                    thrustTorque = accel * (m_CurrentTorque / 2f);
+                    thrustTorque = accel * (m_CurrentTorque );
                     m_WheelColliders[2].motorTorque = m_WheelColliders[3].motorTorque = thrustTorque;
                     break;
 
