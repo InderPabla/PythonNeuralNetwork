@@ -173,20 +173,26 @@ def create_model_1():
 
 
 predict_mode = False
-load_weights_file = "Data5/car_model_CNN_weights2.h5"
-save_weights_file = "Data5/car_model_CNN_weights3.h5"
+load_weights_file = "Data5/car_model_CNN_weights.h5"
+save_weights_file = "Data5/car_model_CNN_weights.h5"
 
 image_data_location_1 = "Data5/"
 raw_data_file_1 = "Data5/raw_data.txt"
 
-image_val_data_location_1 = "Data6/"
-raw_val_data_file_1 = "Data6/raw_data.txt"
+image_data_location_2 = "Data6/"
+raw_data_file_2 = "Data6/raw_data.txt"
+
+image_data_location_3 = "Data7/"
+raw_data_file_3 = "Data7/raw_data.txt"
+
+image_val_data_location_1 = "Data8/"
+raw_val_data_file_1 = "Data8/raw_data.txt"
 
 
 
 
-sample_count= 670
-val_count = 650
+sample_count= 658
+val_count = 658
 
 bactch_itteration_count = 100
 epoch_count = 1
@@ -197,6 +203,12 @@ raw_output_size = 2
 
 train_image_X_1 = get_image_data(sample_count,image_data_location_1,res_x,res_y)
 train_raw_X_1, train_raw_Y_1 = get_raw_data(sample_count, raw_data_file_1, raw_input_size, raw_output_size)
+
+train_image_X_2 = get_image_data(sample_count,image_data_location_2,res_x,res_y)
+train_raw_X_2, train_raw_Y_2 = get_raw_data(sample_count, raw_data_file_2, raw_input_size, raw_output_size)
+
+train_image_X_3 = get_image_data(sample_count,image_data_location_3,res_x,res_y)
+train_raw_X_3, train_raw_Y_3 = get_raw_data(sample_count, raw_data_file_3, raw_input_size, raw_output_size)
 
 val_image_X_1 = get_image_data(val_count,image_val_data_location_1,res_x,res_y)
 val_raw_X_1, val_raw_Y_1 = get_raw_data(val_count, raw_val_data_file_1, raw_input_size, raw_output_size)
@@ -210,7 +222,7 @@ if(os.path.exists(load_weights_file)):
 else:
     print("does not exist")
     
-opt = SGD(lr=0.01, decay=0.000001, momentum=0.9, nesterov=True)
+opt = SGD(lr=0.001, decay=0.0000001, momentum=0.9, nesterov=True)
 model.compile(loss = "mean_squared_error", optimizer = opt)
 
 # THIS MODEL MIGHT BE HARDER THAN REAL SELF DRIVING CAR 
@@ -218,8 +230,10 @@ model.compile(loss = "mean_squared_error", optimizer = opt)
 
 if predict_mode == False:
     for i in range(0,bactch_itteration_count):
-
-        model.fit([np.array(train_image_X_1), np.array(train_raw_X_1)], np.array(train_raw_Y_1), nb_epoch=10,verbose = 2)  
+        for j in range(0,3):
+            model.fit([np.array(train_image_X_1), np.array(train_raw_X_1)], np.array(train_raw_Y_1), nb_epoch=1,verbose = 2)  
+            model.fit([np.array(train_image_X_2), np.array(train_raw_X_2)], np.array(train_raw_Y_2), nb_epoch=1,verbose = 2) 
+            model.fit([np.array(train_image_X_3), np.array(train_raw_X_3)], np.array(train_raw_Y_3), nb_epoch=1,verbose = 2) 
             
         model.save_weights(save_weights_file) 
         

@@ -93,7 +93,7 @@ namespace UnityStandardAssets.Vehicles.Car
         float outForward = 0;
         NetworkStream stream;
         bool realTimeTraningMode = false;
-        bool dataCollectMode = false;
+        bool dataCollectMode = true;
         float recordSpeed = 0.05f;
 
         public void FixedUpdate()
