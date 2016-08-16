@@ -42,10 +42,11 @@ def create_model_1():
     
     multi_layer_model = Sequential()  
     
-    multi_layer_model.add(Dense(512, batch_input_shape=(1, 2)))
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 1)))
     multi_layer_model.add(Activation('tanh'))
     multi_layer_model.add(Dense(512))
     multi_layer_model.add(Activation('tanh'))
+    multi_layer_model.add(Dropout(0.25))
     
     print(multi_layer_model.output_shape)
     
@@ -80,16 +81,16 @@ def create_model_1():
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
     
-    final_model.add(Dense(2))
-    final_model.add(Activation('tanh'))  
+    final_model.add(Dense(3))
+    final_model.add(Activation('sigmoid'))  
     
     return final_model
 
-
-
+# FIX THIS!! Currently NN is getting conflitcing traning!!!!!
+# Same track gets conflitcing results
 # Main Starts Here
 
-load_weights_file = "Data5/car_model_CNN_weights3.h5"
+load_weights_file = "Data5/car_model_CNN_weights2.h5"
 image_file = "real_time.png"
 res_x = 50
 res_y = 50
@@ -116,7 +117,7 @@ while(True):
     real_data = []   
     if(len(data) == expected_length):
         a,b = struct.unpack('ff', bytearray(bytes(data)))
-        real_data = np.array([a,b],dtype=np.float32)
+        real_data = np.array([b],dtype=np.float32)
         #print(real_data)
         
     stream = Image.open(image_file)
@@ -159,7 +160,34 @@ while(True):
     
     pre = model.predict([np.array([raw_RGB]),np.array([real_data])])
     #print(pre)
-    pre = pre[0]
-    message = str(pre[0])+" "+str(pre[1])
+
+    pre = pre[0]*100
+    pre[0] = pre[0]
+    pre[1] = pre[1]
+    pre[2] = pre[2]
+     
+    max_num = 0
+    prediction_answer = 0
+    for m in range(len(pre)):
+        if pre[m] > max_num:
+            max_num = pre[m]
+            prediction_answer = m
+    
+    if(prediction_answer == 0): 
+        prediction_answer = -1
+    elif(prediction_answer == 1): 
+        prediction_answer = 0
+    else:
+        prediction_answer = 1
+    
+    '''
+    if(pre[0]>pre[2]):
+        prediction_answer = -1
+    elif(pre[0]<pre[2]):
+        prediction_answer = 1
+     '''
+     
+    print(pre)     
+    message = str(prediction_answer)
     
     clientsocket.send(message.encode())

@@ -67,8 +67,8 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data8\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data8";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data11\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data11";
         string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
@@ -93,12 +93,11 @@ namespace UnityStandardAssets.Vehicles.Car
         float outForward = 0;
         NetworkStream stream;
         bool realTimeTraningMode = false;
-        bool dataCollectMode = true;
-        float recordSpeed = 0.05f;
+        bool dataCollectMode = false;
+        float recordSpeed = 0.1f;
 
         public void FixedUpdate()
         {
-
             if (initComplete == true && Input.GetKeyDown(KeyCode.P))
             {
                 collectInformaiton = !collectInformaiton;
@@ -110,16 +109,21 @@ namespace UnityStandardAssets.Vehicles.Car
                 }
             }
 
-            if (isCaptured == false) {
+            if (isCaptured == false)
+            {
                 angularVelocity = m_Rigidbody.angularVelocity.y;
                 velocity = m_Rigidbody.velocity.sqrMagnitude;
                 CaptureImage();
              
                 isCaptured = true;
+
+                
             }
 
             if (initComplete == false && realTimeTraningMode == false)
+            {
                 Move(outTurning, outForward, outForward, 0f);
+            }
         }
 
         public void InitilizeDataCollection()
@@ -165,8 +169,21 @@ namespace UnityStandardAssets.Vehicles.Car
             Vector3 velo = m_Rigidbody.velocity;
             //Debug.Log(angular_velo.y + " " + velo.sqrMagnitude + " " + m_SteerAngle);
 
-            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ + forward + " " + turn);
-            Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ + forward + " " + turn);
+            //stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ /*+ forward + " "*/ + turn);
+            float one = 0;
+            float two = 0;
+            float three = 0;
+
+            if (turn == -1f)
+                one = 1f;
+            else if (turn == 0f)
+                two = 1f;
+            else if (turn == 1f)
+                three = 1f;
+
+
+            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude / 100f) + " " + one + " " + two + " " + three);
+            //Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ /*+ forward + " "*/ + turn);
             filenumber++;
         }
 
@@ -213,7 +230,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 float[] data = new float[dataSize];
 
-                data[0] = angularVelocity;
+                data[0] = 0f;//angularVelocity;
                 data[1] = velocity/100f; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
                 //data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
 
@@ -233,23 +250,10 @@ namespace UnityStandardAssets.Vehicles.Car
                 string mstrMessage = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
 
                 double[] doubles = Array.ConvertAll(mstrMessage.Split(' '), new Converter<string, double>(Double.Parse));
-                outForward = (float)doubles[0];
-                outTurning = (float)doubles[1];
-
-                if (outForward < 0.85f)
-                    outForward = -1f;
-                else if (outForward > 0.88)
-                    outForward = 1;
-                else
-                    outForward = 0f;
-
-                if (outTurning < -0.75f)
-                    outTurning = -1;
-                else if (outTurning > 0.75f)
-                    outTurning = 1;
-                else
-                    outTurning = 0f;
-                Debug.Log(outForward+" "+outTurning);
+                
+                outTurning = (float)doubles[0];
+                outForward = 1f;
+                //Debug.Log(outForward+" "+outTurning);
             }
         }
 

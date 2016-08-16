@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{DF9C727C-C78C-EBC9-3BA2-0AAF3326CC98}") = "PythonCar", "Assembly-CSharp-firstpass.csproj", "{2E28CD5D-C86C-5728-44A3-4A90BB9168F0}"
 EndProject
+Project("{DF9C727C-C78C-EBC9-3BA2-0AAF3326CC98}") = "PythonCar", "Assembly-CSharp.csproj", "{FD8668F7-1AB5-A633-1C5B-2A5FB25794DC}"
+EndProject
 Project("{DF9C727C-C78C-EBC9-3BA2-0AAF3326CC98}") = "PythonCar", "Assembly-CSharp-Editor.csproj", "{8D59AFE1-2498-88A3-86AF-63D2CBCE119F}"
 EndProject
 Global
@@ -15,6 +17,10 @@ Global
 		{2E28CD5D-C86C-5728-44A3-4A90BB9168F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E28CD5D-C86C-5728-44A3-4A90BB9168F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E28CD5D-C86C-5728-44A3-4A90BB9168F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD8668F7-1AB5-A633-1C5B-2A5FB25794DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD8668F7-1AB5-A633-1C5B-2A5FB25794DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD8668F7-1AB5-A633-1C5B-2A5FB25794DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD8668F7-1AB5-A633-1C5B-2A5FB25794DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8D59AFE1-2498-88A3-86AF-63D2CBCE119F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D59AFE1-2498-88A3-86AF-63D2CBCE119F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D59AFE1-2498-88A3-86AF-63D2CBCE119F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -23,7 +29,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																														GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

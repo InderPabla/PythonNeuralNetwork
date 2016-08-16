@@ -75,7 +75,7 @@ def get_raw_data(count, raw_file, raw_input_size, raw_output_size):
             X = []
             Y = []
             
-            for i in range(0, raw_input_size):
+            for i in range(1, raw_input_size):
                 X.append(numbers_float[i])
 
             for i in range(raw_input_size, len(numbers_float)):
@@ -128,10 +128,11 @@ def create_model_1():
     
     multi_layer_model = Sequential()  
     
-    multi_layer_model.add(Dense(512, batch_input_shape=(1, 2)))
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 1)))
     multi_layer_model.add(Activation('tanh'))
     multi_layer_model.add(Dense(512))
     multi_layer_model.add(Activation('tanh'))
+    multi_layer_model.add(Dropout(0.25))
     
     print(multi_layer_model.output_shape)
     
@@ -166,15 +167,15 @@ def create_model_1():
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
     
-    final_model.add(Dense(2))
-    final_model.add(Activation('tanh'))  
+    final_model.add(Dense(3))
+    final_model.add(Activation('sigmoid'))  
     
     return final_model
 
 
 predict_mode = False
-load_weights_file = "Data5/car_model_CNN_weights.h5"
-save_weights_file = "Data5/car_model_CNN_weights.h5"
+load_weights_file = "Data5/car_model_CNN_weights2.h5"
+save_weights_file = "Data5/car_model_CNN_weights2.h5"
 
 image_data_location_1 = "Data5/"
 raw_data_file_1 = "Data5/raw_data.txt"
@@ -185,33 +186,51 @@ raw_data_file_2 = "Data6/raw_data.txt"
 image_data_location_3 = "Data7/"
 raw_data_file_3 = "Data7/raw_data.txt"
 
+image_data_location_4 = "Data8/"
+raw_data_file_4 = "Data8/raw_data.txt"
+
+image_data_location_5 = "Data9/"
+raw_data_file_5 = "Data9/raw_data.txt"
+
+image_data_location_6 = "Data10/"
+raw_data_file_6 = "Data10/raw_data.txt"
+
 image_val_data_location_1 = "Data8/"
 raw_val_data_file_1 = "Data8/raw_data.txt"
 
 
 
 
-sample_count= 658
-val_count = 658
+#sample_count= 658
+#val_count = 658
 
 bactch_itteration_count = 100
 epoch_count = 1
 res_x = 50
 res_y = 50
 raw_input_size = 2
-raw_output_size = 2
+raw_output_size = 3
 
-train_image_X_1 = get_image_data(sample_count,image_data_location_1,res_x,res_y)
-train_raw_X_1, train_raw_Y_1 = get_raw_data(sample_count, raw_data_file_1, raw_input_size, raw_output_size)
+train_image_X_1 = get_image_data(570,image_data_location_1,res_x,res_y)
+train_raw_X_1, train_raw_Y_1 = get_raw_data(570, raw_data_file_1, raw_input_size, raw_output_size)
 
-train_image_X_2 = get_image_data(sample_count,image_data_location_2,res_x,res_y)
-train_raw_X_2, train_raw_Y_2 = get_raw_data(sample_count, raw_data_file_2, raw_input_size, raw_output_size)
+train_image_X_2 = get_image_data(475,image_data_location_2,res_x,res_y)
+train_raw_X_2, train_raw_Y_2 = get_raw_data(475, raw_data_file_2, raw_input_size, raw_output_size)
 
-train_image_X_3 = get_image_data(sample_count,image_data_location_3,res_x,res_y)
-train_raw_X_3, train_raw_Y_3 = get_raw_data(sample_count, raw_data_file_3, raw_input_size, raw_output_size)
+train_image_X_3 = get_image_data(478,image_data_location_3,res_x,res_y)
+train_raw_X_3, train_raw_Y_3 = get_raw_data(478, raw_data_file_3, raw_input_size, raw_output_size)
 
-val_image_X_1 = get_image_data(val_count,image_val_data_location_1,res_x,res_y)
-val_raw_X_1, val_raw_Y_1 = get_raw_data(val_count, raw_val_data_file_1, raw_input_size, raw_output_size)
+train_image_X_4 = get_image_data(472,image_data_location_4,res_x,res_y)
+train_raw_X_4, train_raw_Y_4 = get_raw_data(472, raw_data_file_4, raw_input_size, raw_output_size)
+
+train_image_X_5 = get_image_data(572,image_data_location_5,res_x,res_y)
+train_raw_X_5, train_raw_Y_5 = get_raw_data(572, raw_data_file_5, raw_input_size, raw_output_size)
+
+train_image_X_6 = get_image_data(570,image_data_location_6,res_x,res_y)
+train_raw_X_6, train_raw_Y_6 = get_raw_data(570, raw_data_file_6, raw_input_size, raw_output_size)
+
+val_image_X_1 = get_image_data(472,image_val_data_location_1,res_x,res_y)
+val_raw_X_1, val_raw_Y_1 = get_raw_data(472, raw_val_data_file_1, raw_input_size, raw_output_size)
 
 
 model = create_model_1()
@@ -222,7 +241,7 @@ if(os.path.exists(load_weights_file)):
 else:
     print("does not exist")
     
-opt = SGD(lr=0.001, decay=0.0000001, momentum=0.9, nesterov=True)
+opt = SGD(lr=0.00001, decay=0.00000001, momentum=0.9, nesterov=True)
 model.compile(loss = "mean_squared_error", optimizer = opt)
 
 # THIS MODEL MIGHT BE HARDER THAN REAL SELF DRIVING CAR 
@@ -230,44 +249,86 @@ model.compile(loss = "mean_squared_error", optimizer = opt)
 
 if predict_mode == False:
     for i in range(0,bactch_itteration_count):
-        for j in range(0,3):
+        for j in range(0,2):
             model.fit([np.array(train_image_X_1), np.array(train_raw_X_1)], np.array(train_raw_Y_1), nb_epoch=1,verbose = 2)  
             model.fit([np.array(train_image_X_2), np.array(train_raw_X_2)], np.array(train_raw_Y_2), nb_epoch=1,verbose = 2) 
             model.fit([np.array(train_image_X_3), np.array(train_raw_X_3)], np.array(train_raw_Y_3), nb_epoch=1,verbose = 2) 
-            
+            model.fit([np.array(train_image_X_4), np.array(train_raw_X_4)], np.array(train_raw_Y_4), nb_epoch=1,verbose = 2) 
+            model.fit([np.array(train_image_X_5), np.array(train_raw_X_5)], np.array(train_raw_Y_5), nb_epoch=1,verbose = 2)
+            model.fit([np.array(train_image_X_6), np.array(train_raw_X_6)], np.array(train_raw_Y_6), nb_epoch=1,verbose = 2)
+       
         model.save_weights(save_weights_file) 
         
         predict_answer = model.predict([np.array(val_image_X_1), np.array(val_raw_X_1)])
         
-        for k in range(0,val_count):
+        for k in range(0,472):
             prediction = predict_answer[k]*100
             prediction[0] = int(prediction[0])
             prediction[1] = int(prediction[1])
+            prediction[2] = int(prediction[2])
+            
             real = val_raw_Y_1[k]*100
             real[0] = int(real[0])
             real[1] = int(real[1])
+            real[2] = int(real[2])
             
             error = real - prediction
             error[0] = abs(error[0])
             error[1] = abs(error[1])
+            error[2] = abs(error[2])
             
-            print(k," ",real," ",prediction," ",error)
+            real_answer = 0
+            if(real[0] == 100):
+                real_answer = 0
+            if(real[1] == 100):
+                real_answer = 1
+            if(real[2] == 100):
+                real_answer = 2  
+                
+            prediction_answer = 0
+            max_num = 0;
+            
+            for m in range(len(prediction)):
+                if prediction[m] > max_num:
+                    max_num = prediction[m]
+                    prediction_answer = m
+            
+            print(k," ",real," ",prediction," ",error," ",real_answer," ",prediction_answer)
         
         
         print("Itteration: ",i," - Model Saved")
 else:
     predict_answer = model.predict([np.array(val_image_X_1), np.array(val_raw_X_1)])
-    for i in range(0,val_count):
-        prediction = predict_answer[i]*100
+    for k in range(0,472):
+        prediction = predict_answer[k]*100
         prediction[0] = int(prediction[0])
         prediction[1] = int(prediction[1])
-        real = val_raw_Y_1[i]*100
+        prediction[2] = int(prediction[2])
+        
+        real = val_raw_Y_1[k]*100
         real[0] = int(real[0])
         real[1] = int(real[1])
+        real[2] = int(real[2])
         
         error = real - prediction
         error[0] = abs(error[0])
         error[1] = abs(error[1])
+        error[2] = abs(error[2])
         
-        print(i," ",real," ",prediction," ",error)
-
+        real_answer = 0
+        if(real[0] == 100):
+            real_answer = 0
+        if(real[1] == 100):
+            real_answer = 1
+        if(real[2] == 100):
+            real_answer = 2  
+            
+        prediction_answer = 0
+        max_num = 0;
+        
+        for m in range(len(prediction)):
+            if prediction[m] > max_num:
+                max_num = prediction[m]
+                prediction_answer = m
+        
+        print(k," ",real," ",prediction," ",error," ",real_answer," ",prediction_answer)
