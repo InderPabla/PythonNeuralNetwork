@@ -33,6 +33,8 @@
 ### Good quality GIF of car in action
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/5.gif)
 
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/10.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/9.gif)
 
 ## Video Demo Of Neural Network Trained To Recognize Numbers:
 [![ScreenShot](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/1.PNG)](http://youtu.be/yt6k5CD7e6M)
