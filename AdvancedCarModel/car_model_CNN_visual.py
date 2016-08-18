@@ -7,12 +7,12 @@ from scipy.misc import imsave
 from PIL import Image
 
 
-def create_model():
+def create_model_1():
     image_model = Sequential()
     image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 50, 50)))   
     first_layer = image_model.layers[-1]
     input_img = first_layer.input
-
+    
     #54x54 fed in due to zero padding
     image_model.add(Convolution2D(8, 5, 5, activation='relu', name='conv1_1'))
     image_model.add(ZeroPadding2D((2, 2)))
@@ -43,10 +43,11 @@ def create_model():
     
     multi_layer_model = Sequential()  
     
-    multi_layer_model.add(Dense(512, batch_input_shape=(1, 3)))
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 1)))
     multi_layer_model.add(Activation('tanh'))
     multi_layer_model.add(Dense(512))
     multi_layer_model.add(Activation('tanh'))
+    multi_layer_model.add(Dropout(0.25))
     
     print(multi_layer_model.output_shape)
     
@@ -56,6 +57,15 @@ def create_model():
     final_model.add(merged)
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
     
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
@@ -72,22 +82,16 @@ def create_model():
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
     
-    final_model.add(Dense(512))
-    final_model.add(Activation('tanh'))
-    
-    final_model.add(Dense(512))
-    final_model.add(Activation('tanh'))
-    
-    final_model.add(Dense(2))
-    final_model.add(Activation('tanh'))  
+    final_model.add(Dense(3))
+    final_model.add(Activation('sigmoid'))  
     
     return final_model,image_model,input_img
 
 
-final_model,image_model,input_img = create_model()
+final_model,image_model,input_img = create_model_1()
 
 
-weights_file = "Data1/car_model_CNN_weights.h5"
+weights_file = "Data11/car_model_CNN_weights.h5"
 
 final_model.load_weights(weights_file) 
 
@@ -96,10 +100,10 @@ print('Model loaded.')
 layer_dict = dict([(layer.name, layer) for layer in image_model.layers])
 #2-2 4
 
-layer_name = 'conv3_1'
+layer_name = 'conv3_2'
 filter_index = 0
 
-for ac in range(9,10):
+for ac in range(0,1):
     filter_index = ac
     # build a loss function that maximizes the activation
     # of the nth filter of the layer considered
@@ -140,10 +144,10 @@ for ac in range(9,10):
     
     file_number = 0
     
-    for l in range(340,360):
+    for l in range(0,400):
         print(l)
         file_number = l
-        file = 'Data1/'+str(file_number)+'.png'
+        file = 'Data11/'+str(file_number)+'.png'
         im = Image.open(file)
         data = list(im.getdata())
         
@@ -179,7 +183,7 @@ for ac in range(9,10):
         img = re_data[0]
             
         img = deprocess_image(img)
-        imsave('Data1/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
+        imsave('Data11/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
 
 
 

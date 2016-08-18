@@ -86,11 +86,10 @@ def create_model_1():
     
     return final_model
 
-# FIX THIS!! Currently NN is getting conflitcing traning!!!!!
-# Same track gets conflitcing results
+
 # Main Starts Here
 
-load_weights_file = "Data5/car_model_CNN_weights2.h5"
+load_weights_file = "Data11/car_model_CNN_weights.h5"
 image_file = "real_time.png"
 res_x = 50
 res_y = 50
@@ -187,7 +186,7 @@ while(True):
         prediction_answer = 1
      '''
      
-    print(pre)     
+    #print(pre)     
     message = str(prediction_answer)
     
     clientsocket.send(message.encode())
