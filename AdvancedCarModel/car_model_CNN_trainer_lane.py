@@ -1,6 +1,6 @@
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Merge
-from keras.layers import Convolution2D, ZeroPadding2D, MaxPooling2D
+from keras.layers import Convolution2D, ZeroPadding2D, MaxPooling2D, LSTM
 from keras.optimizers import SGD
 from PIL import Image
 import numpy as np 
@@ -95,29 +95,105 @@ def get_raw_data(count, raw_file, raw_input_size, raw_output_size):
     
 
 def create_model_1():
+    '''
     image_model = Sequential()
     image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 50, 50)))   
    
     #54x54 fed in due to zero padding
-    image_model.add(Convolution2D(8, 5, 5, activation='relu', name='conv1_1'))
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(8, 5, 5, activation='relu', name='conv1_2'))
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_2'))
     
     image_model.add(MaxPooling2D((2, 2), strides=(2, 2))) #convert 50x50 to 25x25
         
     #25x25 fed in
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(16, 5, 5, activation='relu', name='conv2_1'))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(16, 5, 5, activation='relu', name='conv2_2'))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_2'))
     
     image_model.add(MaxPooling2D((5, 5), strides=(5, 5))) #convert 25x25 to 5x5
     
     #5x5 fed in
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_2'))
+    
+    image_model.add(Dropout(0.25))
+    
+    image_model.add(Flatten())
+    
+    print(image_model.output_shape)
+    
+    
+    multi_layer_model = Sequential()  
+    
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 1)))
+    multi_layer_model.add(Activation('tanh'))
+    multi_layer_model.add(Dense(512))
+    multi_layer_model.add(Activation('tanh'))
+    
+    print(multi_layer_model.output_shape)
+    
+    merged = Merge([image_model, multi_layer_model], mode='concat')
+
+    final_model = Sequential()
+    final_model.add(merged)
+    final_model.add(Dense(1024))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(1024))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(1024))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+      
+    final_model.add(Dense(3))
+    final_model.add(Activation('sigmoid'))  
+    
+    return final_model
+    '''
+    
+    
+    image_model = Sequential()
+    image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 50, 50)))   
+   
+    #54x54 fed in due to zero padding
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_1'))
+    image_model.add(ZeroPadding2D((2, 2)))
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_2'))
+    
+    image_model.add(MaxPooling2D((2, 2), strides=(2, 2))) #convert 50x50 to 25x25
+        
+    #25x25 fed in
+    image_model.add(ZeroPadding2D((2, 2)))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_1'))
+    image_model.add(ZeroPadding2D((2, 2)))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_2'))
+    
+    image_model.add(MaxPooling2D((5, 5), strides=(5, 5))) #convert 25x25 to 5x5
+    
+    #5x5 fed in
+    image_model.add(ZeroPadding2D((2, 2)))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_1'))
+    image_model.add(ZeroPadding2D((2, 2)))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_2'))
     
     image_model.add(Dropout(0.25))
     
@@ -146,11 +222,11 @@ def create_model_1():
     
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
-    final_model.add(Dropout(0.25))
+    final_model.add(Dropout(0.1))
     
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
-    final_model.add(Dropout(0.25))
+    #final_model.add(Dropout(0.25))
     
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
@@ -171,66 +247,37 @@ def create_model_1():
     final_model.add(Activation('sigmoid'))  
     
     return final_model
-
-
+    
 predict_mode = False
-load_weights_file = "Data11/car_model_CNN_weights.h5"
-save_weights_file = "Data11/car_model_CNN_weights.h5"
+load_weights_file = "Data14/car_model_CNN_weights3.h5"
+save_weights_file = "Data14/car_model_CNN_weights3.h5"
 
-image_data_location_1 = "Data11/"
-raw_data_file_1 = "Data11/raw_data.txt"
+image_data_location_1 = "Data14/"
+raw_data_file_1 = "Data14/raw_data.txt"
 
-image_data_location_2 = "Data12/"
-raw_data_file_2 = "Data12/raw_data.txt"
+image_data_location_2 = "Data13/"
+raw_data_file_2 = "Data13/raw_data.txt"
 
-image_data_location_3 = "Data7/"
-raw_data_file_3 = "Data7/raw_data.txt"
+image_val_data_location_1 = "Data14/"
+raw_val_data_file_1 = "Data14/raw_data.txt"
 
-image_data_location_4 = "Data8/"
-raw_data_file_4 = "Data8/raw_data.txt"
-
-image_data_location_5 = "Data9/"
-raw_data_file_5 = "Data9/raw_data.txt"
-
-image_data_location_6 = "Data10/"
-raw_data_file_6 = "Data10/raw_data.txt"
-
-image_val_data_location_1 = "Data11/"
-raw_val_data_file_1 = "Data11/raw_data.txt"
-
-
-
-
-#sample_count= 658
-#val_count = 658
 
 bactch_itteration_count = 100
 epoch_count = 1
 res_x = 50
 res_y = 50
-raw_input_size = 2
+raw_input_size = 1
 raw_output_size = 3
 
-train_image_X_1 = get_image_data(423,image_data_location_1,res_x,res_y)
-train_raw_X_1, train_raw_Y_1 = get_raw_data(423, raw_data_file_1, raw_input_size, raw_output_size)
+train_image_X_1 = get_image_data(1713,image_data_location_1,res_x,res_y)
+train_raw_X_1, train_raw_Y_1 = get_raw_data(1713, raw_data_file_1, raw_input_size, raw_output_size)
+print(len(train_raw_X_1)," ",len(train_raw_Y_1)," ",len(train_image_X_1))
 
-train_image_X_2 = get_image_data(436,image_data_location_2,res_x,res_y)
-train_raw_X_2, train_raw_Y_2 = get_raw_data(436, raw_data_file_2, raw_input_size, raw_output_size)
+train_image_X_2 = get_image_data(1713,image_data_location_2,res_x,res_y)
+train_raw_X_2, train_raw_Y_2 = get_raw_data(1713, raw_data_file_2, raw_input_size, raw_output_size)
 
-train_image_X_3 = get_image_data(478,image_data_location_3,res_x,res_y)
-train_raw_X_3, train_raw_Y_3 = get_raw_data(478, raw_data_file_3, raw_input_size, raw_output_size)
-
-train_image_X_4 = get_image_data(472,image_data_location_4,res_x,res_y)
-train_raw_X_4, train_raw_Y_4 = get_raw_data(472, raw_data_file_4, raw_input_size, raw_output_size)
-
-train_image_X_5 = get_image_data(572,image_data_location_5,res_x,res_y)
-train_raw_X_5, train_raw_Y_5 = get_raw_data(572, raw_data_file_5, raw_input_size, raw_output_size)
-
-train_image_X_6 = get_image_data(570,image_data_location_6,res_x,res_y)
-train_raw_X_6, train_raw_Y_6 = get_raw_data(570, raw_data_file_6, raw_input_size, raw_output_size)
-
-val_image_X_1 = get_image_data(423,image_val_data_location_1,res_x,res_y)
-val_raw_X_1, val_raw_Y_1 = get_raw_data(423, raw_val_data_file_1, raw_input_size, raw_output_size)
+val_image_X_1 = get_image_data(1713,image_val_data_location_1,res_x,res_y)
+val_raw_X_1, val_raw_Y_1 = get_raw_data(1713,raw_val_data_file_1, raw_input_size, raw_output_size)
 
 
 model = create_model_1()
@@ -241,7 +288,7 @@ if(os.path.exists(load_weights_file)):
 else:
     print("does not exist")
     
-opt = SGD(lr=0.00975, decay=0.000001, momentum=0.9, nesterov=True)
+opt = SGD(lr=0.01, decay=0.000001, momentum=0.9, nesterov=True)
 model.compile(loss = "mean_squared_error", optimizer = opt)
 
 # THIS MODEL MIGHT BE HARDER THAN REAL SELF DRIVING CAR 
@@ -249,9 +296,9 @@ model.compile(loss = "mean_squared_error", optimizer = opt)
 
 if predict_mode == False:
     for i in range(0,bactch_itteration_count):
-        for j in range(0,5):
-            model.fit([np.array(train_image_X_1), np.array(train_raw_X_1)], np.array(train_raw_Y_1), nb_epoch=1,verbose = 2)  
-            model.fit([np.array(train_image_X_2), np.array(train_raw_X_2)], np.array(train_raw_Y_2), nb_epoch=1,verbose = 2) 
+        for j in range(0,3):
+            model.fit([np.array(train_image_X_1), np.array(train_raw_X_1)], np.array(train_raw_Y_1), nb_epoch=1,verbose = 2) 
+            model.fit([np.array(train_image_X_2), np.array(train_raw_X_2)], np.array(train_raw_Y_2), nb_epoch=1,verbose = 2)  
             #model.fit([np.array(train_image_X_3), np.array(train_raw_X_3)], np.array(train_raw_Y_3), nb_epoch=1,verbose = 2) 
             #model.fit([np.array(train_image_X_4), np.array(train_raw_X_4)], np.array(train_raw_Y_4), nb_epoch=1,verbose = 2) 
             #model.fit([np.array(train_image_X_5), np.array(train_raw_X_5)], np.array(train_raw_Y_5), nb_epoch=1,verbose = 2)
@@ -261,7 +308,7 @@ if predict_mode == False:
         
         predict_answer = model.predict([np.array(val_image_X_1), np.array(val_raw_X_1)])
         
-        for k in range(0,423):
+        for k in range(0,400):
             prediction = predict_answer[k]*100
             prediction[0] = int(prediction[0])
             prediction[1] = int(prediction[1])
@@ -299,7 +346,8 @@ if predict_mode == False:
         print("Itteration: ",i," - Model Saved")
 else:
     predict_answer = model.predict([np.array(val_image_X_1), np.array(val_raw_X_1)])
-    for k in range(0,472):
+    correct = 0.0
+    for k in range(0,400):
         prediction = predict_answer[k]*100
         prediction[0] = int(prediction[0])
         prediction[1] = int(prediction[1])
@@ -330,5 +378,6 @@ else:
             if prediction[m] > max_num:
                 max_num = prediction[m]
                 prediction_answer = m
-        
-        print(k," ",real," ",prediction," ",error," ",real_answer," ",prediction_answer)
+        if real_answer == prediction_answer:
+            correct = correct + 1
+        print(k," ",real," ",prediction," ",error," ",real_answer," ",prediction_answer," ",((correct/400.0)*100.0))

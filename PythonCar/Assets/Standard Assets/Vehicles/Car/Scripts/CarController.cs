@@ -87,8 +87,8 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data13\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data13";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data15\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data15";
         string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
@@ -115,6 +115,11 @@ namespace UnityStandardAssets.Vehicles.Car
         bool realTimeTraningMode = false;
         bool dataCollectMode = false;
         float recordSpeed = 0.1f;
+        float signal = 0;
+        float signalChangeTime = 5f;
+        public TextMesh leftText;
+        public TextMesh stayText;
+        public TextMesh rightText;
 
         public void FixedUpdate()
         {
@@ -132,7 +137,7 @@ namespace UnityStandardAssets.Vehicles.Car
             if (isCaptured == false)
             {
                 angularVelocity = m_Rigidbody.angularVelocity.y;
-                velocity = m_Rigidbody.velocity.sqrMagnitude;
+                velocity = m_Rigidbody.velocity.magnitude;
                 CaptureImage();
 
                 isCaptured = true;
@@ -144,6 +149,58 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 Move(outTurning, outForward, outForward, 0f);
             }
+
+            //Debug.Log(m_Rigidbody.velocity.magnitude / 10f);
+        }
+
+        public void SignalChange() {
+            float randomSignal = UnityEngine.Random.Range(0,2);
+
+            /*if (signal == -1) {
+                if (randomSignal == 0) {
+                    signal = 0;
+                }
+                else if (randomSignal == 1) {
+                    signal = 1;
+                }
+            }
+            else if (signal == 0)
+            {
+                if (randomSignal == 0)
+                {
+                    signal = -1;
+                }
+                else if (randomSignal == 1)
+                {
+                    signal = 1;
+                }
+            }
+            else if (signal == 1)
+            {
+                if (randomSignal == 0)
+                {
+                    signal = 0;
+                }
+                else if (randomSignal == 1)
+                {
+                    signal = -1;
+                }
+            }*/
+
+
+            signal *=-1;
+            leftText.text = "";
+            stayText.text = "";
+            rightText.text = "";
+
+            if (signal == -1)
+                leftText.text = "===";
+            else if(signal == 1)
+                rightText.text = "===";
+            else
+                stayText.text = "===";
+
+            Invoke("SignalChange", signalChangeTime);
         }
 
         public void InitilizeDataCollection()
@@ -163,19 +220,50 @@ namespace UnityStandardAssets.Vehicles.Car
             Invoke("PicTimer", recordSpeed);
         }
 
-        public void TakePicture()
+        public void CaptureImage()
         {
-            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+
+            /*RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+            camera.targetTexture = rt;
+            Texture2D screenShot = new Texture2D(300, 300, TextureFormat.RGB24, false);
+            camera.Render();
+            RenderTexture.active = rt;
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 195, 300, 300), 0, 0);*/
+
+            /*RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             camera.targetTexture = rt;
             Texture2D screenShot = new Texture2D(200, 200, TextureFormat.RGB24, false);
             camera.Render();
             RenderTexture.active = rt;
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);*/
 
-
-            screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);
-
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+            camera.targetTexture = rt;
+            Texture2D screenShot = new Texture2D(300, 300, TextureFormat.RGB24, false);
+            camera.Render();
+            RenderTexture.active = rt;
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
             screenShot = ScaleTexture(screenShot, 50, 50);
 
+            screenShot = ScaleTexture(screenShot, 50, 50);
+            camera.targetTexture = null;
+            RenderTexture.active = null;
+            Destroy(rt);
+
+            byte[] bytes = /*screenShot.GetRawTextureData();*/screenShot.EncodeToPNG();
+            System.IO.File.WriteAllBytes(real_time_image, bytes);
+            //return bytes;
+        }
+
+        public void TakePicture()
+        {
+            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
+            camera.targetTexture = rt;
+            Texture2D screenShot = new Texture2D(300, 300, TextureFormat.RGB24, false);
+            camera.Render();
+            RenderTexture.active = rt;
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
+            screenShot = ScaleTexture(screenShot, 50, 50); 
 
             camera.targetTexture = null;
             RenderTexture.active = null;
@@ -202,7 +290,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 three = 1f;
 
 
-            stream_writer.WriteLine(angular_velo.y + " " + (velo.sqrMagnitude / 100f) + " " + one + " " + two + " " + three);
+            stream_writer.WriteLine((velo.magnitude / 10f) + " " + one + " " + two + " " + three);
             //Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ /*+ forward + " "*/ + turn);
             filenumber++;
         }
@@ -250,8 +338,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 float[] data = new float[dataSize];
 
-                data[0] = 0f;//angularVelocity;
-                data[1] = velocity / 100f; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
+                data[0] = signal;//angularVelocity;
+                data[1] = velocity / 10f; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
                 //data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
 
                 if (realTimeTraningMode == true)
@@ -277,28 +365,23 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        public void CaptureImage()
-        {
-            RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
-            camera.targetTexture = rt;
-            Texture2D screenShot = new Texture2D(200, 200, TextureFormat.RGB24, false);
-            camera.Render();
-            RenderTexture.active = rt;
-            screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);
-            screenShot = ScaleTexture(screenShot, 50, 50);
-            camera.targetTexture = null;
-            RenderTexture.active = null;
-            Destroy(rt);
-
-            byte[] bytes = /*screenShot.GetRawTextureData();*/screenShot.EncodeToPNG();
-            System.IO.File.WriteAllBytes(real_time_image, bytes);
-            //return bytes;
-        }
 
         public void InitilizeWork()
         {
             Application.runInBackground = true;
             camera = Camera.main;
+
+            signal = 1f;
+            leftText.text = "";
+            stayText.text = "";
+            rightText.text = "";
+
+            if (signal == -1)
+                leftText.text = "===";
+            else if (signal == 1)
+                rightText.text = "===";
+
+            Invoke("SignalChange", 500000000000f);
 
             if (dataCollectMode == true)
             {

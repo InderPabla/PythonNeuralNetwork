@@ -144,7 +144,7 @@ for ac in range(0,1):
     
     file_number = 0
     
-    for l in range(0,400):
+    for l in range(0,1):
         print(l)
         file_number = l
         file = 'Data11/'+str(file_number)+'.png'
@@ -183,7 +183,7 @@ for ac in range(0,1):
         img = re_data[0]
             
         img = deprocess_image(img)
-        imsave('Data11/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
+        imsave('Data13/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
 
 
 
