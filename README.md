@@ -40,9 +40,11 @@
 
 ## Self driving car learns to drive on both left and right
 - Neural network is taught to stay exclusively in left or right lane when driving
+- 
 ### Right lane
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/11.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/12.gif)
+
 ### Left lane
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/13.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/14.gif)
