@@ -87,8 +87,8 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data15\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data15";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data23\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data23";
         string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
@@ -114,7 +114,7 @@ namespace UnityStandardAssets.Vehicles.Car
         NetworkStream stream;
         bool realTimeTraningMode = false;
         bool dataCollectMode = false;
-        float recordSpeed = 0.1f;
+        float recordSpeed = 0.05f;
         float signal = 0;
         float signalChangeTime = 5f;
         public TextMesh leftText;
@@ -338,14 +338,22 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 float[] data = new float[dataSize];
 
-                data[0] = signal;//angularVelocity;
-                data[1] = velocity / 10f; //velocity = ((m_Rigidbody.velocity.sqrMagnitude/500f)*5f);
-                //data[2] = m_SteerAngle;//(m_SteerAngle/15f); // /15
+                data[0] = signal;
+                data[1] = velocity / 10f; 
 
                 if (realTimeTraningMode == true)
                 {
-                    data[3] = forward;
-                    data[4] = turn;
+                    data[2] = 0;
+                    data[3] = 0;
+                    data[4] = 0;
+
+                    if (turn == 0)
+                        data[3] = 1;
+                    else if (turn == -1)
+                        data[2] = 1;
+                    else if (turn == 1)
+                        data[4] = 1;
+
                 }
 
                 byte[] convertedData = new byte[4 * data.Length];

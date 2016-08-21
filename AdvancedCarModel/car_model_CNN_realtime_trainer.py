@@ -30,7 +30,7 @@ def create_model():
     
     #5x5 fed in
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_1'))
     image_model.add(ZeroPadding2D((2, 2)))
     image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
     
@@ -43,10 +43,11 @@ def create_model():
     
     multi_layer_model = Sequential()  
     
-    multi_layer_model.add(Dense(512, batch_input_shape=(1, 3)))
+    multi_layer_model.add(Dense(512, batch_input_shape=(1, 1)))
     multi_layer_model.add(Activation('tanh'))
     multi_layer_model.add(Dense(512))
     multi_layer_model.add(Activation('tanh'))
+    multi_layer_model.add(Dropout(0.25))
     
     print(multi_layer_model.output_shape)
     
@@ -56,6 +57,15 @@ def create_model():
     final_model.add(merged)
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
+    
+    final_model.add(Dense(512))
+    final_model.add(Activation('tanh'))
+    final_model.add(Dropout(0.25))
     
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
@@ -72,18 +82,12 @@ def create_model():
     final_model.add(Dense(512))
     final_model.add(Activation('tanh'))
     
-    final_model.add(Dense(512))
-    final_model.add(Activation('tanh'))
-    
-    final_model.add(Dense(512))
-    final_model.add(Activation('tanh'))
-    
-    final_model.add(Dense(2))
-    final_model.add(Activation('tanh'))  
+    final_model.add(Dense(3))
+    final_model.add(Activation('sigmoid'))  
     
     return final_model
 
-weights_file = "Data3/car_model_CNN_weights.h5"
+weights_file = "Data14/car_model_CNN_weights_realtime.h5"
 image_file = "real_time.png"
 epoch_count = 1
 res_x = 50
@@ -96,7 +100,7 @@ if(os.path.exists(weights_file)):
     print("already exsits")
     model.load_weights(weights_file) 
 
-opt = SGD(lr=0.1, decay=0.000001, momentum=0.9, nesterov=True)
+opt = SGD(lr=0.001, decay=0.0000001, momentum=0.9, nesterov=True)
 model.compile(loss = "mean_squared_error", optimizer = opt)
 
  
@@ -118,8 +122,8 @@ while(True):
     #print(len(data))
     if(len(data) == 20):
         a,b,c,d,e = struct.unpack('fffff', bytearray(bytes(data)))
-        real_data = np.array([a,b,c],dtype=np.float32)
-        expected_output = np.array([d,e],dtype=np.float32)
+        real_data = np.array([b],dtype=np.float32)
+        expected_output = np.array([c,d,e],dtype=np.float32)
         #print(real_data)
         #print(expected_output)
         

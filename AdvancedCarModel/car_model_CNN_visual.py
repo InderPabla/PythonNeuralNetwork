@@ -30,11 +30,11 @@ def create_model_1():
     
     #5x5 fed in
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_1'))
     image_model.add(ZeroPadding2D((2, 2)))
     image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
     
-    image_model.add(Dropout(0.25))
+    image_model.add(Dropout(0.25, name = "drop"))
     
     image_model.add(Flatten())
     
@@ -83,7 +83,7 @@ def create_model_1():
     final_model.add(Activation('tanh'))
     
     final_model.add(Dense(3))
-    final_model.add(Activation('sigmoid'))  
+    final_model.add(Activation('sigmoid'))        
     
     return final_model,image_model,input_img
 
@@ -91,7 +91,7 @@ def create_model_1():
 final_model,image_model,input_img = create_model_1()
 
 
-weights_file = "Data11/car_model_CNN_weights.h5"
+weights_file = "Data14/car_model_CNN_weights2.h5"
 
 final_model.load_weights(weights_file) 
 
@@ -144,10 +144,10 @@ for ac in range(0,1):
     
     file_number = 0
     
-    for l in range(0,1):
+    for l in range(0,400):
         print(l)
         file_number = l
-        file = 'Data11/'+str(file_number)+'.png'
+        file = 'Data16/'+str(file_number)+'.png'
         im = Image.open(file)
         data = list(im.getdata())
         
@@ -183,7 +183,7 @@ for ac in range(0,1):
         img = re_data[0]
             
         img = deprocess_image(img)
-        imsave('Data13/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
+        imsave('DataVisual/%s_filter_%d_%d.png' % (layer_name, filter_index, file_number), img)
 
 
 

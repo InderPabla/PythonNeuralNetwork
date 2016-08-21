@@ -40,8 +40,6 @@ namespace UnityStandardAssets.Vehicles.Car
 
             m_Car.Move(h, v, v, handbrake);*/
 
-
-
             /*float h = CrossPlatformInputManager.GetAxis("Horizontal");
          if (h < 0)
              h = -1f;
