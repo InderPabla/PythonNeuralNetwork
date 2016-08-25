@@ -1,11 +1,12 @@
 from keras.models import model_from_json
 from keras.optimizers import SGD
+import os.path
 
 class NetLoader:
     
     def __init__(self, model_file = "", weights_file = "", learning_rate = 0.01, 
                  decay_rate = 0.000001, loss_function = "mean_squared_error", 
-                 momentum= 0.9, nesterov=True, train_mode = True):
+                 momentum= 0.9, nesterov=True, train_mode = True, epoch_save = 25):
                      
         self.model_file = model_file
         self.weights_file = weights_file
@@ -15,14 +16,17 @@ class NetLoader:
         self.momentum = momentum
         self.nesterov = nesterov
         self.train_mode = train_mode
+        self.epoch_save = epoch_save
         
         self.model = None
         self.optimizer = None
+        self.epoch_save_counter = 0
+        self.save_counter = 0
         
         if not model_file == "":
             self.load_model()
-            
-            if not weights_file  == "":
+
+            if (not weights_file  == "") and os.path.exists(weights_file):
                 self.load_weights()
         
         if self.train_mode == True:
@@ -51,4 +55,18 @@ class NetLoader:
     
     def fit(self,inputs,outputs,epochs = 1,verbose = 0):
         self.model.fit(inputs, outputs, nb_epoch=epochs,verbose = verbose)
+        self.epoch_save_counter = self.epoch_save_counter + epochs
+        
+        if self.epoch_save_counter >= self.epoch_save:
+            self.epoch_save_counter = 0
+            
+            if not self.weights_file == "":
+                self.model.save_weights(self.weights_file)
+                self.save_counter = self.save_counter + 1
+                print("Saving Counter: ",self.save_counter)
+            
+            
+            
+            
+            
     
