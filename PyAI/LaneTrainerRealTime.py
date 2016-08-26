@@ -2,7 +2,7 @@ import NetLoader as NetLoader
 import DataLoader as DataLoader
 import EasySocket as EasySocket
 import numpy as np
-import os.path
+
 
 def index_of_largest_element(array):
     large_index = 0
