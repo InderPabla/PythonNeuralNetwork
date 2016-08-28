@@ -1,6 +1,6 @@
 from PIL import Image
 import numpy as np 
-import os
+import os.path
 
 class DataLoader:
     
@@ -16,7 +16,7 @@ class DataLoader:
         self.input_images_set = []
         self.input_reals_set = []
         self.output_reals_set = []
-        
+
         if(len(self.data_paths)>0):
             self.load_all_data()
             
@@ -38,9 +38,12 @@ class DataLoader:
         in_image = []
         in_real = []
         out_real = []
+        images_count = 0
         
-        images_count = len(os.listdir(path)) - 1
-        
+        if(os.path.exists(path+self.raw_data_filename)):
+            images_count = len(os.listdir(path)) - 1
+        else:
+            images_count = len(os.listdir(path))
         # run through number of number of images to get
         for i in range(0,images_count):
             
@@ -53,29 +56,30 @@ class DataLoader:
         in_image = np.array(in_image,dtype = np.float32)    
         
         raw_count = 0
-    
-        with open(path+self.raw_data_filename) as file:
-            for line in file: 
-                numbers_str = line.split()
-                numbers_float = [float(x) for x in numbers_str] 
-    
-                X = []
-                Y = []
-                
-                for i in range(0, self.num_inputs):
-                    X.append(numbers_float[i])
-    
-                for i in range(self.num_inputs, len(numbers_float)):
-                    Y.append(numbers_float[i])
-                
-                in_real.append(X)
-                out_real.append(Y)
-                
-                raw_count = raw_count + 1
-                
-                if raw_count == images_count:
-                    break;
+        
+        if(os.path.exists(path+self.raw_data_filename)):
+            with open(path+self.raw_data_filename) as file:
+                for line in file: 
+                    numbers_str = line.split()
+                    numbers_float = [float(x) for x in numbers_str] 
+        
+                    X = []
+                    Y = []
                     
+                    for i in range(0, self.num_inputs):
+                        X.append(numbers_float[i])
+        
+                    for i in range(self.num_inputs, len(numbers_float)):
+                        Y.append(numbers_float[i])
+                    
+                    in_real.append(X)
+                    out_real.append(Y)
+                    
+                    raw_count = raw_count + 1
+                    
+                    if raw_count == images_count:
+                        break;
+                        
         in_real = np.array(in_real, dtype = np.float32) 
         out_real = np.array(out_real, dtype = np.float32) 
         
@@ -125,6 +129,9 @@ class DataLoader:
     def get_set_elements_to_train(self,index):
         return [np.array(self.input_images_set[index]), 
                 np.array(self.input_reals_set[index])], np.array(self.output_reals_set[index])
+    
+    def get_only_image_elements_to_train(self,index):
+        return [np.array(self.input_images_set[index])]
                 
     def get_set_elements_to_predict(self,index):
         return [np.array(self.input_images_set[index]), 

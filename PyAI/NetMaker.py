@@ -107,26 +107,25 @@ def custom_model_2():
     image_model.add(ZeroPadding2D((2, 2)))
     image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
     
-    image_model.add(Dropout(0.25))
     
     image_model.add(Flatten())
     print(image_model.output_shape)
-    image_model.add(Dense(512))
-    image_model.add(Activation('tanh'))
-    image_model.add(Dropout(0.25))
-    
-    image_model.add(Dense(512))
-    image_model.add(Activation('tanh'))
-    image_model.add(Dropout(0.25))
-    
-    image_model.add(Dense(512))
-    image_model.add(Activation('tanh'))
-    image_model.add(Dropout(0.25))
-    
-    image_model.add(Dense(512))
+    image_model.add(Dense(2048))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(2048))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(2048))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(1024))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(1024))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(512))

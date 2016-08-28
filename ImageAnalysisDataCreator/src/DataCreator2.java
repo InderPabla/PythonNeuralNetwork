@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -44,6 +45,7 @@ public class DataCreator2 extends JPanel implements MouseMotionListener, MouseLi
 	DataInputStream in;
 	
 	byte[] writeData = new byte[15*15];
+	BufferedImage m;
     public DataCreator2() {
         setBackground(SystemColor.activeCaption);
         setLayout(null);
@@ -185,6 +187,15 @@ public class DataCreator2 extends JPanel implements MouseMotionListener, MouseLi
         
         
         //g.drawOval(0, 0, getWidth(), getHeight());
+        try {
+			//m = ImageIO.read(new File("C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\DrivingData2\\0.png"));
+			Image m = ImageIO.read(new File("C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\a.gif"));
+        	g.drawImage(m, 0, 0, 50, 50, null, null);
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         
         repaint();
     }

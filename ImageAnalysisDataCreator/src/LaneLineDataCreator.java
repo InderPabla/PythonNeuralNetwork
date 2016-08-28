@@ -30,8 +30,8 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 private float mouseX = 0f;
 	 private float mouseY = 0f;
 	
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImagesDataSet2";
-	 private String realData = "C:/Users/Pabla/Desktop/RealData2/rawData.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet3";
+	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData3/raw_data.txt";
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
@@ -48,8 +48,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 private float scaleFactor = 4f;
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
-	 private boolean loadMode = false;
-	 
+	 private int boxSize = 10;
 	 @Override
 	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
@@ -65,8 +64,9 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 				e.printStackTrace();
 	 			}
 	        	 
-		        if(savingPoints[fileIndex][0].y == 0 || savingPoints[fileIndex][1].y == 0 || savingPoints[fileIndex][2].y == 0 || savingPoints[fileIndex][3].y == 0){
-		        	if(fileIndex>0){
+		        //if(savingPoints[fileIndex][0].y == 0 || savingPoints[fileIndex][1].y == 0 || savingPoints[fileIndex][2].y == 0 || savingPoints[fileIndex][3].y == 0){
+		        if(savingPoints[fileIndex][0].x == 0){
+	        		if(fileIndex>0){
 			        	for(int i = 0; i<numberOfPoints;i++){
 			        		savingPoints[fileIndex][i] = new Rectangle(savingPoints[fileIndex-1][i]);
 			        	}
@@ -84,7 +84,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 		        
 		        Graphics2D g2 = (Graphics2D) g;
 		        g2.setColor(Color.yellow);
-		        g2.setStroke(new BasicStroke(3));
+		        g2.setStroke(new BasicStroke(2));
 		        g2.drawLine(drawPoints[0].x+(drawPoints[0].width/2), drawPoints[0].y+(drawPoints[0].height/2), drawPoints[1].x+(drawPoints[1].width/2), drawPoints[1].y+(drawPoints[1].height/2));
 		        g2.drawLine(drawPoints[2].x+(drawPoints[2].width/2), drawPoints[2].y+(drawPoints[2].height/2), drawPoints[3].x+(drawPoints[3].width/2), drawPoints[3].y+(drawPoints[3].height/2));
 	        }
@@ -100,7 +100,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	        	drawPoints = savingPoints[(int)animationFileIndex];
 	        	Graphics2D g2 = (Graphics2D) g;
 		        g2.setColor(Color.yellow);
-		        g2.setStroke(new BasicStroke(3));
+		        g2.setStroke(new BasicStroke(2));
 		        g2.drawLine(drawPoints[0].x+(drawPoints[0].width/2), drawPoints[0].y+(drawPoints[0].height/2), drawPoints[1].x+(drawPoints[1].width/2), drawPoints[1].y+(drawPoints[1].height/2));
 		        g2.drawLine(drawPoints[2].x+(drawPoints[2].width/2), drawPoints[2].y+(drawPoints[2].height/2), drawPoints[3].x+(drawPoints[3].width/2), drawPoints[3].y+(drawPoints[3].height/2));
 	        }
@@ -161,9 +161,10 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
         
         savingPoints = new Rectangle[files.length][numberOfPoints];
         for(int i = 0; i<files.length;i++){
-        	for(int j = 0; j<numberOfPoints;j++){
+        	for(int j = 0; j<numberOfPoints;j+=2){
             	
-            	savingPoints[i][j] = new Rectangle(j*25,0,25,25);
+            	savingPoints[i][j] = new Rectangle(j*(boxSize),(int)(boxSize*scaleFactor),boxSize,boxSize);
+            	savingPoints[i][j+1] = new Rectangle(j*(boxSize),(int)(originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor)/*(int)(originalImageHeight*scaleFactor)-boxSize/2*/,boxSize,boxSize);
             }
         }
         
@@ -205,10 +206,15 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 			writer = new PrintWriter(rawFile);
 			for(int i = 0; i<files.length;i++){
 				
-				writer.println( scalePointXAsOutput(savingPoints[i][0].x + savingPoints[i][0].width/2)+" "+scalePointYAsOutput(savingPoints[i][0].y + savingPoints[i][0].height/2)+" "+
+				/*writer.println( scalePointXAsOutput(savingPoints[i][0].x + savingPoints[i][0].width/2)+" "+scalePointYAsOutput(savingPoints[i][0].y + savingPoints[i][0].height/2)+" "+
 								scalePointXAsOutput(savingPoints[i][1].x + savingPoints[i][1].width/2)+" "+scalePointYAsOutput(savingPoints[i][1].y + savingPoints[i][1].height/2)+" "+
 								scalePointXAsOutput(savingPoints[i][2].x + savingPoints[i][2].width/2)+" "+scalePointYAsOutput(savingPoints[i][2].y + savingPoints[i][2].height/2)+" "+
-								scalePointXAsOutput(savingPoints[i][3].x + savingPoints[i][3].width/2)+" "+scalePointYAsOutput(savingPoints[i][3].y + savingPoints[i][3].height/2));
+								scalePointXAsOutput(savingPoints[i][3].x + savingPoints[i][3].width/2)+" "+scalePointYAsOutput(savingPoints[i][3].y + savingPoints[i][3].height/2));*/
+				
+				writer.println( scalePointXAsOutput(savingPoints[i][0].x + boxSize/2)+" "+
+								scalePointXAsOutput(savingPoints[i][1].x + boxSize/2)+" "+
+								scalePointXAsOutput(savingPoints[i][2].x + boxSize/2)+" "+
+								scalePointXAsOutput(savingPoints[i][3].x + boxSize/2));
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -268,7 +274,16 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 				movingPoint = true;
 			}
 			else{
-				savingPoints[fileIndex][movingPointIndex].setLocation((int)mouseX-savingPoints[fileIndex][movingPointIndex].width/2, (int)mouseY-savingPoints[fileIndex][movingPointIndex].height/2);
+				int xPos = (int)mouseX-savingPoints[fileIndex][movingPointIndex].width/2;
+				
+				int yPos = (int)mouseY-savingPoints[fileIndex][movingPointIndex].height/2;
+				if(movingPointIndex %2 == 0){
+					yPos = (int)(boxSize*scaleFactor);
+				}
+				else{
+					yPos = (int)(originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
+				}
+				savingPoints[fileIndex][movingPointIndex].setLocation(xPos,yPos);
 			}
 		
 		}
