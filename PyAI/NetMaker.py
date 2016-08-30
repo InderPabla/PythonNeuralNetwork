@@ -137,7 +137,7 @@ def custom_model_2():
     image_model.add(Dense(512))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(8))
+    image_model.add(Dense(4))
     image_model.add(Activation('sigmoid'))  
     
     return image_model

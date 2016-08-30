@@ -49,6 +49,7 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
 	 private float scaleFactor = 4f;
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
+	 private int boxSize = 10;
 	 
 	 @Override
 	 public void paintComponent(Graphics g) {
@@ -67,15 +68,15 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
         	drawPoints1 = savingPoints1[(int)animationFileIndex];
         	Graphics2D g2 = (Graphics2D) g;
 	        g2.setColor(Color.red);
-	        g2.setStroke(new BasicStroke(3));
+	        g2.setStroke(new BasicStroke(2));
 	        g2.drawLine(drawPoints1[0].x+(drawPoints1[0].width/2), drawPoints1[0].y+(drawPoints1[0].height/2), drawPoints1[1].x+(drawPoints1[1].width/2), drawPoints1[1].y+(drawPoints1[1].height/2));
 	        g2.drawLine(drawPoints1[2].x+(drawPoints1[2].width/2), drawPoints1[2].y+(drawPoints1[2].height/2), drawPoints1[3].x+(drawPoints1[3].width/2), drawPoints1[3].y+(drawPoints1[3].height/2));
 
-	        /*g2.setColor(Color.green);
+	        g2.setColor(Color.green);
 	        drawPoints2 = savingPoints2[(int)animationFileIndex];
-	        g2.setStroke(new BasicStroke(3));
+	        g2.setStroke(new BasicStroke(2));
 	        g2.drawLine(drawPoints2[0].x+(drawPoints2[0].width/2), drawPoints2[0].y+(drawPoints2[0].height/2), drawPoints2[1].x+(drawPoints2[1].width/2), drawPoints2[1].y+(drawPoints2[1].height/2));
-	        g2.drawLine(drawPoints2[2].x+(drawPoints2[2].width/2), drawPoints2[2].y+(drawPoints2[2].height/2), drawPoints2[3].x+(drawPoints2[3].width/2), drawPoints2[3].y+(drawPoints2[3].height/2));*/
+	        g2.drawLine(drawPoints2[2].x+(drawPoints2[2].width/2), drawPoints2[2].y+(drawPoints2[2].height/2), drawPoints2[3].x+(drawPoints2[3].width/2), drawPoints2[3].y+(drawPoints2[3].height/2));
 	        
 	        
 	        g.setColor(Color.red);
@@ -125,12 +126,16 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
         	
         	savingPoints1 = new Rectangle[files.length][numberOfPoints];
             for(int i = 0; i<files.length;i++){
-            	for(int j = 0; j<numberOfPoints;j++){
-            		float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
-            		float y = scanner.nextFloat()*(originalImageHeight*scaleFactor);
-            		x -= (25f/2f);
-            		y -= (25f/2f);
-                	savingPoints1[i][j] = new Rectangle((int)x,(int)y,25,25);
+            	for(int j = 0; j<numberOfPoints;j++){  	
+                	float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
+            		float y = 0;
+            		x -= (boxSize/2f);
+            		
+            		if(j%2 == 0)
+            			y =  (boxSize*scaleFactor);
+            		else
+            			y =  (originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
+                	savingPoints1[i][j] = new Rectangle((int)x,(int)y,boxSize,boxSize);
                 }
             }
 		} catch (FileNotFoundException e) {
@@ -146,10 +151,14 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
             for(int i = 0; i<files.length;i++){
             	for(int j = 0; j<numberOfPoints;j++){
             		float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
-            		float y = scanner.nextFloat()*(originalImageHeight*scaleFactor);
-            		x -= (25f/2f);
-            		y -= (25f/2f);
-                	savingPoints2[i][j] = new Rectangle((int)x,(int)y,25,25);
+            		float y = 0;
+            		x -= (boxSize/2f);
+            		
+            		if(j%2 == 0)
+            			y =  (boxSize*scaleFactor);
+            		else
+            			y =  (originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
+                	savingPoints2[i][j] = new Rectangle((int)x,(int)y,boxSize,boxSize);
                 }
             }
 		} catch (FileNotFoundException e) {
