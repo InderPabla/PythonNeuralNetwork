@@ -1,12 +1,12 @@
 from keras.models import model_from_json
-from keras.optimizers import SGD
+from keras.optimizers import SGD, RMSprop
 import os.path
 
 class NetLoader:
     
     def __init__(self, model_file = "", weights_file = "", learning_rate = 0.01, 
                  decay_rate = 0.000001, loss_function = "mean_squared_error", 
-                 momentum= 0.9, nesterov=True, train_mode = True, epoch_save = 25):
+                 momentum= 0.9, nesterov=True, train_mode = True, epoch_save = 25, optimizer = "SGD"):
                      
         self.model_file = model_file
         self.weights_file = weights_file
@@ -19,7 +19,9 @@ class NetLoader:
         self.epoch_save = epoch_save
         
         self.model = None
-        self.optimizer = None
+        self.optimizer = optimizer
+            
+            
         self.epoch_save_counter = 0
         self.save_counter = 0
         
@@ -43,9 +45,12 @@ class NetLoader:
         self.model.load_weights(self.weights_file)
     
     def compile_model(self):
-        self.optimizer = SGD(lr=self.learning_rate, decay=self.decay_rate, 
-                             momentum=self.momentum, nesterov=self.nesterov)
-                             
+        if(self.optimizer == "SGD"):
+            self.optimizer = SGD(lr=self.learning_rate, decay=self.decay_rate, 
+                                 momentum=self.momentum, nesterov=self.nesterov)
+        elif(self.optimizer == "RMSProp"):              
+            self.optimizer = RMSprop(lr=self.learning_rate, rho=0.9, epsilon=1e-08)
+                                 
         self.model.compile(loss = self.loss_function, 
                            optimizer = self.optimizer)
     

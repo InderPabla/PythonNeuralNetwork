@@ -29,7 +29,10 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 private boolean mouseDown = false;
 	 private float mouseX = 0f;
 	 private float mouseY = 0f;
-	
+	 private float oldMouseX = 0f;
+	 private float oldMouseY = 0f;
+	 private float oldPositionX = 0f;
+	 private float oldPositionY = 0f;
 	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet3";
 	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData3/raw_data.txt";
 	 private File[] files;
@@ -48,7 +51,8 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 private float scaleFactor = 4f;
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
-	 private int boxSize = 10;
+	 private float boxSize = 10f;
+	 private float lineWidth = 1f;
 	 @Override
 	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
@@ -79,14 +83,14 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 		        for(int i = 0;i<numberOfPoints;i++){
 		        	g.setColor(pointsColor[i]);
 		        	g.drawRect(drawPoints[i].x,drawPoints[i].y,drawPoints[i].width,drawPoints[i].height);
-		        	g.drawString(text[i], drawPoints[i].x+(drawPoints[i].width/2), drawPoints[i].y+(drawPoints[i].height/2));
+		        	//g.drawString(text[i], drawPoints[i].x+(drawPoints[i].width/2), drawPoints[i].y+(drawPoints[i].height/2));
 		        }
 		        
 		        Graphics2D g2 = (Graphics2D) g;
-		        g2.setColor(Color.yellow);
-		        g2.setStroke(new BasicStroke(2));
-		        g2.drawLine(drawPoints[0].x+(drawPoints[0].width/2), drawPoints[0].y+(drawPoints[0].height/2), drawPoints[1].x+(drawPoints[1].width/2), drawPoints[1].y+(drawPoints[1].height/2));
-		        g2.drawLine(drawPoints[2].x+(drawPoints[2].width/2), drawPoints[2].y+(drawPoints[2].height/2), drawPoints[3].x+(drawPoints[3].width/2), drawPoints[3].y+(drawPoints[3].height/2));
+		        g2.setColor(Color.red);
+		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+		        g2.drawLine(drawPoints[0].x, drawPoints[0].y, drawPoints[1].x, drawPoints[1].y);
+		        g2.drawLine(drawPoints[2].x, drawPoints[2].y, drawPoints[3].x, drawPoints[3].y);
 	        }
 	        else if(animationMode == true && (int)animationFileIndex < files.length - 1){
 	        	try {
@@ -99,10 +103,10 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	        	animationFileIndex += animationSpeed;
 	        	drawPoints = savingPoints[(int)animationFileIndex];
 	        	Graphics2D g2 = (Graphics2D) g;
-		        g2.setColor(Color.yellow);
-		        g2.setStroke(new BasicStroke(2));
-		        g2.drawLine(drawPoints[0].x+(drawPoints[0].width/2), drawPoints[0].y+(drawPoints[0].height/2), drawPoints[1].x+(drawPoints[1].width/2), drawPoints[1].y+(drawPoints[1].height/2));
-		        g2.drawLine(drawPoints[2].x+(drawPoints[2].width/2), drawPoints[2].y+(drawPoints[2].height/2), drawPoints[3].x+(drawPoints[3].width/2), drawPoints[3].y+(drawPoints[3].height/2));
+		        g2.setColor(Color.red);
+		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+		        g2.drawLine(drawPoints[0].x, drawPoints[0].y, drawPoints[1].x, drawPoints[1].y);
+		        g2.drawLine(drawPoints[2].x, drawPoints[2].y, drawPoints[3].x, drawPoints[3].y);
 	        }
 	        else{
 	        	animationMode = false;
@@ -162,9 +166,9 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
         savingPoints = new Rectangle[files.length][numberOfPoints];
         for(int i = 0; i<files.length;i++){
         	for(int j = 0; j<numberOfPoints;j+=2){
-            	
-            	savingPoints[i][j] = new Rectangle(j*(boxSize),(int)(boxSize*scaleFactor),boxSize,boxSize);
-            	savingPoints[i][j+1] = new Rectangle(j*(boxSize),(int)(originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor)/*(int)(originalImageHeight*scaleFactor)-boxSize/2*/,boxSize,boxSize);
+        		int scaledBox = (int)(scaleFactor*boxSize);
+            	savingPoints[i][j] = new Rectangle(j*scaledBox,scaledBox,scaledBox,scaledBox);
+            	savingPoints[i][j+1] = new Rectangle(j*scaledBox,(int)(originalImageHeight*scaleFactor) - (int)scaledBox,scaledBox,scaledBox);
             }
         }
         
@@ -211,10 +215,10 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 								scalePointXAsOutput(savingPoints[i][2].x + savingPoints[i][2].width/2)+" "+scalePointYAsOutput(savingPoints[i][2].y + savingPoints[i][2].height/2)+" "+
 								scalePointXAsOutput(savingPoints[i][3].x + savingPoints[i][3].width/2)+" "+scalePointYAsOutput(savingPoints[i][3].y + savingPoints[i][3].height/2));*/
 				
-				writer.println( scalePointXAsOutput(savingPoints[i][0].x + boxSize/2)+" "+
-								scalePointXAsOutput(savingPoints[i][1].x + boxSize/2)+" "+
-								scalePointXAsOutput(savingPoints[i][2].x + boxSize/2)+" "+
-								scalePointXAsOutput(savingPoints[i][3].x + boxSize/2));
+				writer.println( scalePointXAsOutput(savingPoints[i][0].x)+" "+
+								scalePointXAsOutput(savingPoints[i][1].x)+" "+
+								scalePointXAsOutput(savingPoints[i][2].x)+" "+
+								scalePointXAsOutput(savingPoints[i][3].x));
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -246,7 +250,8 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	public void mousePressed(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		mouseDown = true;
-		
+		oldMouseX = mouseX;
+		oldMouseY = mouseY;
 	}
 
 	@Override
@@ -254,6 +259,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 		// TODO Auto-generated method stub
 		mouseDown = false;
 		movingPoint = false;
+		
 		
 	}
 
@@ -263,26 +269,28 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 		mouseX = e.getX();
 		mouseY = e.getY();
 		
-		if(mouseDown){
+		if(mouseDown) {
 			if(movingPoint == false){
 				for(int i =0;i<numberOfPoints;i++){
 					if(savingPoints[fileIndex][i].contains(mouseX, mouseY) == true){
 						movingPointIndex = i;
+						oldPositionX = savingPoints[fileIndex][i].x;
+						oldPositionY = savingPoints[fileIndex][i].y;
 						break;
 					}
 				}
 				movingPoint = true;
 			}
 			else{
-				int xPos = (int)mouseX-savingPoints[fileIndex][movingPointIndex].width/2;
 				
-				int yPos = (int)mouseY-savingPoints[fileIndex][movingPointIndex].height/2;
+				int scaledBox = (int)(boxSize*scaleFactor);
+				int xPos = (int)(mouseX-oldMouseX) + (int)oldPositionX;
+				
+				int yPos = (int)(originalImageHeight*scaleFactor) - (int)scaledBox;
 				if(movingPointIndex %2 == 0){
-					yPos = (int)(boxSize*scaleFactor);
+					yPos = scaledBox;
 				}
-				else{
-					yPos = (int)(originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
-				}
+
 				savingPoints[fileIndex][movingPointIndex].setLocation(xPos,yPos);
 			}
 		

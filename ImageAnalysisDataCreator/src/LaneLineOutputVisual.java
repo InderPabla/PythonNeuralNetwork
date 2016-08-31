@@ -32,9 +32,9 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
 	 private float mouseX = 0f;
 	 private float mouseY = 0f;
 	
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet2";
-	 private String realData1 = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_2.txt";
-	 private String realData2 = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData2/raw_data.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet3";
+	 private String realData1 = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_3.txt";
+	 private String realData2 = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData3/raw_data.txt";
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
@@ -50,11 +50,14 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
 	 private int boxSize = 10;
+	 private float lineWidth = 1f;
+	 float start = 0f;
 	 
 	 @Override
 	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
 	        
+	        if(start>100){
 	        Rectangle[] drawPoints1;
 	        Rectangle[] drawPoints2;
 	        
@@ -65,18 +68,50 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
  				e.printStackTrace();
  			}
         	
-        	drawPoints1 = savingPoints1[(int)animationFileIndex];
+        	
         	Graphics2D g2 = (Graphics2D) g;
+        	drawPoints1 = savingPoints1[(int)animationFileIndex];
 	        g2.setColor(Color.red);
-	        g2.setStroke(new BasicStroke(2));
-	        g2.drawLine(drawPoints1[0].x+(drawPoints1[0].width/2), drawPoints1[0].y+(drawPoints1[0].height/2), drawPoints1[1].x+(drawPoints1[1].width/2), drawPoints1[1].y+(drawPoints1[1].height/2));
-	        g2.drawLine(drawPoints1[2].x+(drawPoints1[2].width/2), drawPoints1[2].y+(drawPoints1[2].height/2), drawPoints1[3].x+(drawPoints1[3].width/2), drawPoints1[3].y+(drawPoints1[3].height/2));
-
+	        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+	        
+	        
+	        float intersectionX = 0;
+	        float intersectionY = 0;
+	        /*float a1 = (drawPoints1[1].y-drawPoints1[0].y)/(drawPoints1[1].x-drawPoints1[0].x);
+	        float b1 = drawPoints1[0].y - (a1*drawPoints1[0].x); 
+	        float a2 = (drawPoints1[3].y-drawPoints1[2].y)/(drawPoints1[3].x-drawPoints1[2].x);
+	        float b2 = drawPoints1[2].y - (a2*drawPoints1[2].x);
+	        float newX =  -(b1-b2)/(a1-a2);
+	        float newY = (a1*newX)+b1;*/
+	       
+	        
+	        //g2.drawLine(drawPoints1[0].x, drawPoints1[0].y, drawPoints1[1].x, drawPoints1[1].y);
+	        //g2.drawLine(drawPoints1[2].x, drawPoints1[2].y, drawPoints1[3].x, drawPoints1[3].y);
+	         //g2.drawLine((int)xi, (int)yi,  drawPoints1[1].x, drawPoints1[1].y);
+	         //g2.drawLine((int)xi, (int)yi, drawPoints1[3].x, drawPoints1[3].y);
+	         
+	        
 	        g2.setColor(Color.green);
 	        drawPoints2 = savingPoints2[(int)animationFileIndex];
-	        g2.setStroke(new BasicStroke(2));
-	        g2.drawLine(drawPoints2[0].x+(drawPoints2[0].width/2), drawPoints2[0].y+(drawPoints2[0].height/2), drawPoints2[1].x+(drawPoints2[1].width/2), drawPoints2[1].y+(drawPoints2[1].height/2));
-	        g2.drawLine(drawPoints2[2].x+(drawPoints2[2].width/2), drawPoints2[2].y+(drawPoints2[2].height/2), drawPoints2[3].x+(drawPoints2[3].width/2), drawPoints2[3].y+(drawPoints2[3].height/2));
+	        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+	        
+	        
+	        float x1 = drawPoints2[0].x;
+	        float y1 = drawPoints2[0].y;
+	        float x2 = drawPoints2[1].x;
+	        float y2 = drawPoints2[1].y;
+	        float x3 = drawPoints2[2].x;
+	        float y3 = drawPoints2[2].y;
+	        float x4 = drawPoints2[3].x;
+	        float y4 = drawPoints2[3].y;
+	        
+	        float d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+	        float xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
+	        float yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
+	        
+	        
+	        g2.drawLine((int)xi, (int)yi, drawPoints2[1].x, drawPoints2[1].y);
+	        g2.drawLine((int)xi, (int)yi, drawPoints2[3].x, drawPoints2[3].y);
 	        
 	        
 	        g.setColor(Color.red);
@@ -87,7 +122,10 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
 	        
 	        if((int)animationFileIndex>=files.length)
 	        	animationFileIndex = 0;
+	        }
+	        start+=0.01f;
 	        repaint();
+	        
 	 }
 	
 	
@@ -127,15 +165,15 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
         	savingPoints1 = new Rectangle[files.length][numberOfPoints];
             for(int i = 0; i<files.length;i++){
             	for(int j = 0; j<numberOfPoints;j++){  	
-                	float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
-            		float y = 0;
-            		x -= (boxSize/2f);
+            		int scaledBox = (int)(boxSize*scaleFactor);
+            		float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
             		
-            		if(j%2 == 0)
-            			y =  (boxSize*scaleFactor);
-            		else
-            			y =  (originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
-                	savingPoints1[i][j] = new Rectangle((int)x,(int)y,boxSize,boxSize);
+            		float y = (int)(originalImageHeight*scaleFactor) - (int)scaledBox;
+    				if(j %2 == 0){
+    					y = scaledBox;
+    				}
+ 
+                	savingPoints1[i][j] = new Rectangle((int)x,(int)y,scaledBox,scaledBox);
                 }
             }
 		} catch (FileNotFoundException e) {
@@ -150,15 +188,21 @@ public class LaneLineOutputVisual extends JPanel implements MouseMotionListener,
         	savingPoints2 = new Rectangle[files.length][numberOfPoints];
             for(int i = 0; i<files.length;i++){
             	for(int j = 0; j<numberOfPoints;j++){
+            		int scaledBox = (int)(boxSize*scaleFactor);
             		float x = scanner.nextFloat()*(originalImageWidth*scaleFactor);
-            		float y = 0;
-            		x -= (boxSize/2f);
             		
-            		if(j%2 == 0)
-            			y =  (boxSize*scaleFactor);
-            		else
-            			y =  (originalImageHeight*scaleFactor) - (int)(boxSize*scaleFactor);
-                	savingPoints2[i][j] = new Rectangle((int)x,(int)y,boxSize,boxSize);
+            		float y = (int)(originalImageHeight*scaleFactor) - (int)scaledBox;
+    				if(j %2 == 0){
+    					y = scaledBox;
+    				}
+ 
+                	savingPoints2[i][j] = new Rectangle((int)x,(int)y,scaledBox,scaledBox);
+                	
+                	
+                	
+    				
+    				
+
                 }
             }
 		} catch (FileNotFoundException e) {
