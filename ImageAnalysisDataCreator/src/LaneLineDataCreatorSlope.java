@@ -25,26 +25,20 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-public class LaneLineDataCreator extends JPanel implements MouseMotionListener, MouseListener, KeyListener{
+public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListener, MouseListener, KeyListener{
 	 private boolean mouseDown = false;
 	 private float mouseX = 0f;
 	 private float mouseY = 0f;
 	 private float oldMouseX = 0f;
-	 private float oldMouseY = 0f;
-	 private float oldPositionX = 0f;
-	 private float oldPositionY = 0f;
+	 private float oldSlope = 0f;
+	 private float oldPosition = 0f;
+	 
 	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet3";
 	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData3/raw_data.txt";
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
 	 private float animationSpeed = 0.1f;
-	 private Rectangle[][] savingPoints;
-	 private Color[] pointsColor;
-	 private String[] text;
-	 private boolean movingPoint = true;
-	 private int movingPointIndex= 0;
-	 private int numberOfPoints = 4;
 	 
 	 private boolean animationMode = false;
 	 private File rawFile;
@@ -54,43 +48,76 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 private float boxSize = 10f;
 	 private float lineWidth = 1f;
 	 
+	 
+	 private float[][] points;
+	 private Rectangle[][] control;
+	 
+	 private boolean movingPoint = true;
+	 private float movingPointIndex= 0;
+	 private int numberOfPoints = 4;
+	 
 	 @Override
 	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
+	        Rectangle[] drawControl;
 	        
-	        Rectangle[] drawPoints;
-
+	        Graphics2D g2 = (Graphics2D) g;
+	        
 	        if(animationMode == false){
-		        
 	        	try {
 	 				Image image = ImageIO.read(files[fileIndex]);
 	 	        	g.drawImage(image, 0, 0, (int)(originalImageWidth*scaleFactor), (int)(originalImageHeight*scaleFactor), null, null);
 	 	        } catch (IOException e) {
 	 				e.printStackTrace();
 	 			}
-	        	 
-		        if(savingPoints[fileIndex][0].x == 0){
+
+		        g2.setColor(Color.red);
+		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+		        
+		        if(points[fileIndex][1] == 1f){
 	        		if(fileIndex>0){
-			        	for(int i = 0; i<numberOfPoints;i++){
-			        		savingPoints[fileIndex][i] = new Rectangle(savingPoints[fileIndex-1][i]);
+	        			
+			        	for(int i = 0; i<4;i++){
+			        		points[fileIndex][i] = points[fileIndex-1][i];
+			        		//control[fileIndex][i] = new Rectangle(control[fileIndex-1][i]);
 			        	}
 		        	}
 		        }
 		        
+		        float staticCenterY = (originalImageHeight*scaleFactor)/2f;
+		        float staticYTop = -200f*scaleFactor;
+		        float staticYBottom = 200f*scaleFactor;
 		        
-		        drawPoints = savingPoints[fileIndex];
+		        float x1 = points[fileIndex][0];
+		        float m1 = points[fileIndex][1];
+		        float b1 = staticCenterY-(x1*m1);
 		        
-		        for(int i = 0;i<numberOfPoints;i++){
-		        	g.setColor(pointsColor[i]);
-		        	g.drawRect(drawPoints[i].x,drawPoints[i].y,drawPoints[i].width,drawPoints[i].height);
-		        	//g.drawString(text[i], drawPoints[i].x+(drawPoints[i].width/2), drawPoints[i].y+(drawPoints[i].height/2));
+		        float x2 = points[fileIndex][2];
+		        float m2 = points[fileIndex][3];
+		        float b2= staticCenterY-(x2*m2);
+		        
+		        
+		        float x1_1 = (staticYTop-(b1))/m1;
+		        float x1_2 = (staticYBottom-(b1))/m1;
+
+
+		        float x2_1  = (staticYTop-(b2))/m2;
+		        float x2_2  = (staticYBottom-(b2))/m2;
+		        
+		        
+		        g2.drawLine((int)x1_1, (int)staticYTop, (int)x1_2, (int)staticYBottom);
+		        
+		        g2.drawLine((int)x2_1, (int)staticYTop, (int)x2_2, (int)staticYBottom);
+		        
+		        drawControl = control[fileIndex];
+		        
+		        for(int i = 0;i<4;i++){
+		        	g.setColor(Color.green);
+		        	if(i%2==0)
+		        		g.setColor(Color.red);
+		        	g2.setStroke(new BasicStroke(1f));
+		        	g.drawRect(drawControl[i].x,drawControl[i].y,drawControl[i].width,drawControl[i].height);
 		        }
-		        
-		        Graphics2D g2 = (Graphics2D) g;
-		        g2.setColor(Color.red);
-		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
-		        g2.drawLine(drawPoints[0].x, drawPoints[0].y, drawPoints[1].x, drawPoints[1].y);
-		        g2.drawLine(drawPoints[2].x, drawPoints[2].y, drawPoints[3].x, drawPoints[3].y);
 	        }
 	        else if(animationMode == true && (int)animationFileIndex < files.length - 1){
 	        	try {
@@ -101,12 +128,36 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	 			}
 	        	
 	        	animationFileIndex += animationSpeed;
-	        	drawPoints = savingPoints[(int)animationFileIndex];
-	        	Graphics2D g2 = (Graphics2D) g;
-		        g2.setColor(Color.red);
+	        	
+	        	
+		        
+		        float staticCenterY = (originalImageHeight*scaleFactor)/2f;
+		        float staticYTop = -200f*scaleFactor;
+		        float staticYBottom = 200f*scaleFactor;
+		        
+		        float x1 = points[(int)animationFileIndex][0];
+		        float m1 = points[(int)animationFileIndex][1];
+		        float b1 = staticCenterY-(x1*m1);
+		        
+		        float x2 = points[(int)animationFileIndex][2];
+		        float m2 = points[(int)animationFileIndex][3];
+		        float b2= staticCenterY-(x2*m2);
+		        
+		        System.out.println(m1+" "+m2);
+		        
+		        float x1_1 = (staticYTop-(b1))/m1;
+		        float x1_2 = (staticYBottom-(b1))/m1;
+
+
+		        float x2_1  = (staticYTop-(b2))/m2;
+		        float x2_2  = (staticYBottom-(b2))/m2;
+		        
 		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
-		        g2.drawLine(drawPoints[0].x, drawPoints[0].y, drawPoints[1].x, drawPoints[1].y);
-		        g2.drawLine(drawPoints[2].x, drawPoints[2].y, drawPoints[3].x, drawPoints[3].y);
+		        g2.setColor(Color.green);
+		        g2.drawLine((int)x1_1, (int)staticYTop, (int)x1_2, (int)staticYBottom);
+		        g2.drawLine((int)x2_1, (int)staticYTop, (int)x2_2, (int)staticYBottom);
+	        	
+	        	
 	        }
 	        else{
 	        	animationMode = false;
@@ -123,7 +174,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	/**
 	 * Create the application.
 	 */
-	public LaneLineDataCreator() {
+	public LaneLineDataCreatorSlope() {
 		setBackground(SystemColor.activeCaption);
         setLayout(null);
         
@@ -145,32 +196,56 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
         for(int i = 0; i<files.length;i++){
         	String name = files[i].getName();
         	System.out.println(name);
-        }
-
-        pointsColor = new Color[numberOfPoints];
-        text = new String[numberOfPoints];
-        for(int i = 0; i<numberOfPoints;i++){
+        } 
+        
+        points = new float[files.length][4];
+        control = new Rectangle[files.length][4];
+        for(int i = 0; i<points.length; i++){
+        	points[i][0] = (originalImageWidth*scaleFactor)/2f;
+        	points[i][1] = 1f;
+        	points[i][2] = (originalImageWidth*scaleFactor)/2f;
+        	points[i][3] = -1f;
         	
-        	if(i%2 == 0)
-        		pointsColor[i] = Color.red;
-        	else
-        		pointsColor[i] = Color.green;
-        	
-        	if(i<numberOfPoints/2)
-        		text[i] = "1";
-        	else 
-        		text[i] = "2";
+        	 for(int j = 0; j<4; j++){
+        		 float scaledBox = (boxSize*scaleFactor);
+        		 float dispX = 0f;
+        		 float dispY = 0f;
+        		 
+        		 /*float dispX = points[i][0] + (boxSize*scaleFactor);
+        		 float dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+        		 
+        		 if(j>=2){
+        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+        		 }
+        		 if(j%2 == 0){
+        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
+        		 }*/
+        		 
+        		 if(j == 0){
+        			 dispX = points[i][0] + (boxSize*scaleFactor);
+        			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+        		 }
+        		 else if(j == 1){
+        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
+        		 }
+        		 else if(j == 2){
+        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+        			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+        		 }
+        		 else if(j == 3){
+        			 dispX = points[i][0] + (boxSize*scaleFactor);
+        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f; 
+        		 }
+        		 
+        		 control[i][j] = new Rectangle((int)dispX,(int)dispY,(int)scaledBox,(int)scaledBox);
+        		 
+        	 }
         	
         }
         
-        savingPoints = new Rectangle[files.length][numberOfPoints];
-        for(int i = 0; i<files.length;i++){
-        	for(int j = 0; j<numberOfPoints;j+=2){
-        		int scaledBox = (int)(scaleFactor*boxSize);
-            	savingPoints[i][j] = new Rectangle(j*scaledBox,scaledBox,scaledBox,scaledBox);
-            	savingPoints[i][j+1] = new Rectangle(j*scaledBox,(int)(originalImageHeight*scaleFactor) - (int)scaledBox,scaledBox,scaledBox);
-            }
-        }
+        
+        
         
         rawFile = new File(realData);
         try {
@@ -201,24 +276,17 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	public float scalePointXAsOutput(float point){
 		return point/(originalImageWidth*scaleFactor);
 	}
-	public float scalePointYAsOutput(float point){
-		return point/(originalImageHeight*scaleFactor);
-	}
+
 	public void saveLineData(){
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(rawFile);
 			for(int i = 0; i<files.length;i++){
 				
-				/*writer.println( scalePointXAsOutput(savingPoints[i][0].x + savingPoints[i][0].width/2)+" "+scalePointYAsOutput(savingPoints[i][0].y + savingPoints[i][0].height/2)+" "+
-								scalePointXAsOutput(savingPoints[i][1].x + savingPoints[i][1].width/2)+" "+scalePointYAsOutput(savingPoints[i][1].y + savingPoints[i][1].height/2)+" "+
-								scalePointXAsOutput(savingPoints[i][2].x + savingPoints[i][2].width/2)+" "+scalePointYAsOutput(savingPoints[i][2].y + savingPoints[i][2].height/2)+" "+
-								scalePointXAsOutput(savingPoints[i][3].x + savingPoints[i][3].width/2)+" "+scalePointYAsOutput(savingPoints[i][3].y + savingPoints[i][3].height/2));*/
-				
-				writer.println( scalePointXAsOutput(savingPoints[i][0].x)+" "+
-								scalePointXAsOutput(savingPoints[i][1].x)+" "+
-								scalePointXAsOutput(savingPoints[i][2].x)+" "+
-								scalePointXAsOutput(savingPoints[i][3].x));
+				writer.println( scalePointXAsOutput(points[i][0])+" "+
+								points[i][1]+" "+
+								scalePointXAsOutput(points[i][2])+" "+
+								points[i][3]);
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -247,19 +315,21 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
+	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
+		mouseX = e.getX();
+		mouseY = e.getY();
 		mouseDown = true;
-		oldMouseX = mouseX;
-		oldMouseY = mouseY;
+		
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
+		mouseX = e.getX();
+		mouseY = e.getY();
 		mouseDown = false;
 		movingPoint = false;
-		
 		
 	}
 
@@ -270,30 +340,35 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
 		mouseY = e.getY();
 		
 		if(mouseDown) {
+			//points[fileIndex][1] = oldSlope+((mouseX-oldMouseX)/1000f);
+			
 			if(movingPoint == false){
 				for(int i =0;i<numberOfPoints;i++){
-					if(savingPoints[fileIndex][i].contains(mouseX, mouseY) == true){
+					if(control[fileIndex][i].contains(mouseX, mouseY) == true){
 						movingPointIndex = i;
-						oldPositionX = savingPoints[fileIndex][i].x;
-						oldPositionY = savingPoints[fileIndex][i].y;
 						break;
 					}
 				}
+				
+				oldMouseX = mouseX;
+				if(movingPointIndex%2f != 0)
+					oldSlope = points[fileIndex][(int)movingPointIndex];
+				else
+					oldPosition = points[fileIndex][(int)movingPointIndex];
+					
 				movingPoint = true;
 			}
 			else{
-				
-				int scaledBox = (int)(boxSize*scaleFactor);
-				int xPos = (int)(mouseX-oldMouseX) + (int)oldPositionX;
-				
-				int yPos = (int)(originalImageHeight*scaleFactor) - (int)scaledBox;
-				if(movingPointIndex %2 == 0){
-					yPos = scaledBox;
-				}
+				if(movingPointIndex%2f != 0){
+					//points[fileIndex][(int)movingPointIndex] = oldSlope+((mouseX-oldMouseX)/(Math.abs(100f-points[fileIndex][(int)movingPointIndex])));
+					points[fileIndex][(int)movingPointIndex] = oldSlope + (mouseX-oldMouseX)/500f;
 
-				savingPoints[fileIndex][movingPointIndex].setLocation(xPos,yPos);
+				}
+				else{
+					points[fileIndex][(int)movingPointIndex] = (mouseX-oldMouseX) + oldPosition;
+				}
+				
 			}
-		
 		}
 	}
 
@@ -364,7 +439,7 @@ public class LaneLineDataCreator extends JPanel implements MouseMotionListener, 
         JFrame jFrame = new JFrame();
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setSize(420, 285);
-        jFrame.getContentPane().add(new LaneLineDataCreator());
+        jFrame.getContentPane().add(new LaneLineDataCreatorSlope());
         jFrame.setVisible(true);
         
 	}
