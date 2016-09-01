@@ -6,7 +6,7 @@
 - Image size 100x56
 - Neural network output are 4 numbers.
 - Each number represents x values on a preset y axis. Each pair of numbers make 1 line.
-- RED line is prediction by network, green line is give traning data.
+- RED line is prediction by network, GREEN line is give traning data.
 
 
 ## Basic Self Driving Car 
