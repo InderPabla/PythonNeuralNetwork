@@ -1,6 +1,18 @@
 # Python Neural Network
 
-## Real world lane deteciton
+## Real world lane deteciton : NEW
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/17.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/18.gif)
+
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/19.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/20.gif)
+- Image size 100x56
+- Neural network output are 4 numbers.
+- First number represents x value, followed by slope of the line. 2 numbers make up 1 line.
+- RED line is prediction by network, GREEN line is the given traning data.
+
+
+## Real world lane deteciton : OLD
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/15.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/16.gif)
 - Image size 100x56
