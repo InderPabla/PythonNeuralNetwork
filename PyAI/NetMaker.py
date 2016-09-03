@@ -113,13 +113,13 @@ def custom_model_2():
     image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(512))
@@ -135,7 +135,7 @@ def custom_model_2():
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(4))
-    image_model.add(Activation('sigmoid'))  
+    image_model.add(Activation('tanh'))  
     
     return image_model
 def make_model(file):

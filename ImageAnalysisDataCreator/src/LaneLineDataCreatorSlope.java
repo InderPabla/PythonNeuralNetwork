@@ -15,10 +15,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -33,12 +35,13 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 	 private float oldSlope = 0f;
 	 private float oldPosition = 0f;
 	 
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet3";
-	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData3/raw_data.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet1";
+	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData5/raw_data.txt";
+	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_1.txt";
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
-	 private float animationSpeed = 0.1f;
+	 private float animationSpeed = 0.02f;
 	 
 	 private boolean animationMode = false;
 	 private File rawFile;
@@ -141,21 +144,33 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 		        
 		        float x2 = points[(int)animationFileIndex][2];
 		        float m2 = points[(int)animationFileIndex][3];
-		        float b2= staticCenterY-(x2*m2);
+		        float b2= staticCenterY-(x2*m2);    
 		        
-		        System.out.println(m1+" "+m2);
+		        float splitY = originalImageHeight*scaleFactor;
+		        staticYBottom = splitY;
 		        
 		        float x1_1 = (staticYTop-(b1))/m1;
+		        float y1_1 = staticYTop;
 		        float x1_2 = (staticYBottom-(b1))/m1;
-
+		        float y1_2 = staticYBottom;
 
 		        float x2_1  = (staticYTop-(b2))/m2;
+		        float y2_1 = staticYTop;
 		        float x2_2  = (staticYBottom-(b2))/m2;
+		        float y2_2 = staticYBottom;
+		        
+		        float xi = -(b1-b2)/(m1-m2);
+		        float yi = (m1*xi)+b1;
+		        
+		        
 		        
 		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
 		        g2.setColor(Color.green);
-		        g2.drawLine((int)x1_1, (int)staticYTop, (int)x1_2, (int)staticYBottom);
-		        g2.drawLine((int)x2_1, (int)staticYTop, (int)x2_2, (int)staticYBottom);
+		        
+		        //g2.drawLine((int)x1_1, (int)staticYTop, (int)x1_2, (int)staticYBottom);
+		        //g2.drawLine((int)x2_1, (int)staticYTop, (int)x2_2, (int)staticYBottom);
+		        g2.drawLine((int)xi, (int)yi, (int)x1_2, (int)staticYBottom);
+		        g2.drawLine((int)xi, (int)yi, (int)x2_2, (int)staticYBottom);
 	        	
 	        	
 	        }
@@ -200,59 +215,97 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
         
         points = new float[files.length][4];
         control = new Rectangle[files.length][4];
-        for(int i = 0; i<points.length; i++){
-        	points[i][0] = (originalImageWidth*scaleFactor)/2f;
-        	points[i][1] = 1f;
-        	points[i][2] = (originalImageWidth*scaleFactor)/2f;
-        	points[i][3] = -1f;
-        	
-        	 for(int j = 0; j<4; j++){
-        		 float scaledBox = (boxSize*scaleFactor);
-        		 float dispX = 0f;
-        		 float dispY = 0f;
-        		 
-        		 /*float dispX = points[i][0] + (boxSize*scaleFactor);
-        		 float dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
-        		 
-        		 if(j>=2){
-        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
-        		 }
-        		 if(j%2 == 0){
-        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
-        		 }*/
-        		 
-        		 if(j == 0){
-        			 dispX = points[i][0] + (boxSize*scaleFactor);
-        			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
-        		 }
-        		 else if(j == 1){
-        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
-        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
-        		 }
-        		 else if(j == 2){
-        			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
-        			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
-        		 }
-        		 else if(j == 3){
-        			 dispX = points[i][0] + (boxSize*scaleFactor);
-        			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f; 
-        		 }
-        		 
-        		 control[i][j] = new Rectangle((int)dispX,(int)dispY,(int)scaledBox,(int)scaledBox);
-        		 
-        	 }
-        	
-        }
-        
-        
-        
-        
         rawFile = new File(realData);
-        try {
-			rawFile.createNewFile();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        
+        
+        
+        if(rawFile.exists()){
+        	System.out.println("Exists");
+        	Scanner scanner  = null;
+        	try {
+        		scanner = new Scanner(new FileReader(rawFile));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+        	
+        	
+        	for(int i = 0; i<points.length; i++){
+            	points[i][0] = scanner.nextFloat()*(originalImageWidth*scaleFactor);
+            	points[i][1] = scanner.nextFloat();
+            	points[i][2] = scanner.nextFloat()*(originalImageWidth*scaleFactor);
+            	points[i][3] = scanner.nextFloat();
+            	
+            	for(int j = 0; j<4; j++){
+	           		 float scaledBox = (boxSize*scaleFactor);
+	           		 float dispX = 0f;
+	           		 float dispY = 0f;
+	    
+	           		 if(j == 0){
+	           			 dispX = points[i][0] + (boxSize*scaleFactor);
+	           			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+	           		 }
+	           		 else if(j == 1){
+	           			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+	           			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
+	           		 }
+	           		 else if(j == 2){
+	           			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+	           			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+	           		 }
+	           		 else if(j == 3){
+	           			 dispX = points[i][0] + (boxSize*scaleFactor);
+	           			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f; 
+	           		 }
+	           		 
+	           		 control[i][j] = new Rectangle((int)dispX,(int)dispY,(int)scaledBox,(int)scaledBox);
+           		 
+           	 	}
+        	}
+        	scanner.close();
+        }
+        else{
+        	
+        	for(int i = 0; i<points.length; i++){
+            	points[i][0] = (originalImageWidth*scaleFactor)/2f;
+            	points[i][1] = 1f;
+            	points[i][2] = (originalImageWidth*scaleFactor)/2f;
+            	points[i][3] = -1f;
+            	for(int j = 0; j<4; j++){
+    	       		 float scaledBox = (boxSize*scaleFactor);
+    	       		 float dispX = 0f;
+    	       		 float dispY = 0f;
+    	
+    	       		 if(j == 0){
+    	       			 dispX = points[i][0] + (boxSize*scaleFactor);
+    	       			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+    	       		 }
+    	       		 else if(j == 1){
+    	       			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+    	       			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f;
+    	       		 }
+    	       		 else if(j == 2){
+    	       			 dispX = points[i][0] - (boxSize*scaleFactor)*2f;
+    	       			 dispY = ((originalImageHeight*scaleFactor)/2f) + scaledBox;
+    	       		 }
+    	       		 else if(j == 3){
+    	       			 dispX = points[i][0] + (boxSize*scaleFactor);
+    	       			 dispY = ((originalImageHeight*scaleFactor)/2f) - scaledBox*2f; 
+    	       		 }
+    	       		 
+    	       		 control[i][j] = new Rectangle((int)dispX,(int)dispY,(int)scaledBox,(int)scaledBox);
+           		 
+           	 	}
+            	 
+            	
+            }
+        	
+        	
+	        try {
+				rawFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
         this.setFocusable(true);
         this.requestFocusInWindow();
         this.addMouseListener(this);

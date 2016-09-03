@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np 
 import os.path
+from random import randint
 
 class DataLoader:
     
@@ -138,6 +139,69 @@ class DataLoader:
                 np.array(self.input_reals_set[index])]
     
     def get_set_size(self):
-        return len(self.input_images_set)               
+        return len(self.input_images_set) 
+
+    def combine_data(self,random_sort = False):
+        new_input_images_set = []
+        new_input_reals_set = []
+        new_output_reals_set = []  
+        
+        for i in range(0,len(self.input_images_set)):
+            for j in range(0,len(self.input_images_set[i])):    
+                new_input_images_set.append(self.input_images_set[i][j])
+                new_input_reals_set.append(self.input_reals_set[i][j])
+                new_output_reals_set.append(self.output_reals_set[i][j])
+
+        if(random_sort == False):
+            self.input_images_set = [new_input_images_set] 
+            self.input_reals_set = [new_input_reals_set]
+            self.output_reals_set = [new_output_reals_set] 
+        else:
+            self.input_images_set = []
+            self.input_reals_set = []
+            self.output_reals_set = []
+            random_index_set = []
+            
+            for i in range(0,len(new_input_images_set)):
+                random_index_set.append(i)
+            
+            for i in range(0,len(new_input_images_set)):
+                random_index = randint(0,len(random_index_set) -1);
+                random_index_from_set = random_index_set[random_index]
+                self.input_images_set.append(new_input_images_set[random_index_from_set])
+                self.input_reals_set.append(new_input_reals_set[random_index_from_set])
+                self.output_reals_set.append(new_output_reals_set[random_index_from_set])
+                random_index_set.pop(random_index)
+                
+            self.input_images_set = [self.input_images_set]
+            self.input_reals_set = [self.input_reals_set]
+            self.output_reals_set = [self.output_reals_set]    
+            
+            
+        
+        '''
+        if(random_sort == False):
+            self.input_images_set = [new_input_images_set] 
+            self.input_reals_set = [new_input_reals_set]
+            self.output_reals_set = [new_output_reals_set]
+        else:
+            random_index = []
+            for i in range(0,len(new_input_images_set)):
+                random_index.append(i)
+            
+            for i in range(0,len())
+         '''   
+        
+        
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
     
         
