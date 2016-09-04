@@ -35,17 +35,17 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 	 private float oldSlope = 0f;
 	 private float oldPosition = 0f;
 	 
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet1";
-	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData5/raw_data.txt";
-	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_1.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet6";
+	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData6/raw_data.txt";
+	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_4.txt";
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
-	 private float animationSpeed = 0.02f;
+	 private float animationSpeed = 0.05f;
 	 
 	 private boolean animationMode = false;
 	 private File rawFile;
-	 private float scaleFactor = 4f;
+	 private float scaleFactor = 8f;
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
 	 private float boxSize = 10f;
@@ -165,7 +165,7 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 		        
 		        
 		        g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
-		        g2.setColor(Color.green);
+		        g2.setColor(Color.red);
 		        
 		        //g2.drawLine((int)x1_1, (int)staticYTop, (int)x1_2, (int)staticYBottom);
 		        //g2.drawLine((int)x2_1, (int)staticYTop, (int)x2_2, (int)staticYBottom);
@@ -219,7 +219,7 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
         
         
         
-        if(rawFile.exists()){
+        if(rawFile.exists() && rawFile.length()>0){
         	System.out.println("Exists");
         	Scanner scanner  = null;
         	try {
@@ -318,7 +318,7 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
         	int index1 = files[i].getName().indexOf("-");
         	int index2 = files[i].getName().indexOf(".");
         	String name = files[i].getName().substring(index1+1, index2);
-        	File fileReplace = new File(dataFolder+"/"+name+".png");
+        	File fileReplace = new File(imagesDataFolder+"/"+name+".png");
         	files[i].renameTo(fileReplace);
         	System.out.println(name);
         }*/
@@ -439,8 +439,6 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 
 	}
 
-
-
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -466,8 +464,24 @@ public class LaneLineDataCreatorSlope extends JPanel implements MouseMotionListe
 		
 		if(e.getKeyCode() == KeyEvent.VK_E){
 			saveLineData();
-			
 		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_Z){
+			if(fileIndex>0){
+	        	for(int i = 0; i<4;i++){
+	        		points[fileIndex][i] = points[fileIndex-1][i];
+	        	}
+        	}
+		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_C){
+			if(fileIndex<points.length-1){
+	        	for(int i = 0; i<4;i++){
+	        		points[fileIndex][i] = points[fileIndex+1][i];
+	        	}
+        	}
+		}
+		
 	}
 
 
