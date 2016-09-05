@@ -36,9 +36,10 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 private float oldPositionX = 0f;
 	 private float oldPositionY = 0f;
 	 
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet6";
-	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData6/raw_data.txt";
-	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_4.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet8";
+	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData8/raw_data.txt";
+	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_8.txt";
+	 
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
@@ -48,11 +49,11 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 
 	 private boolean animationMode = false;
 	 private File rawFile;
-	 private float scaleFactor = 8f;
+	 private float scaleFactor = 4f;
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
 	 private float boxSize = 10f;
-	 private float lineWidth = 0.5f;
+	 private float lineWidth = 1f;
 	 
 	 private boolean movingPoint = true;
 	 private int movingPointIndex= 0;
@@ -61,7 +62,7 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 @Override
 	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
-	        Rectangle[] drawControl;
+	        Rectangle[] drawRect;
 	        
 	        Graphics2D g2 = (Graphics2D) g;
 	        
@@ -83,7 +84,7 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 		        }
 	        	
 	        	
-	        	Rectangle[] drawRect = points[fileIndex];
+	        	drawRect = points[fileIndex];
 	        	g.setColor(Color.red);
 	        	
 	        	for(int i = 0; i<drawRect.length;i++){
@@ -110,8 +111,20 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 				e.printStackTrace();
 	 			}
 	        	
+	        	drawRect = points[(int)animationFileIndex];
+	        	g2.setStroke(new BasicStroke(lineWidth*scaleFactor));
+			    g2.setColor(Color.green);  
+		        
+	        	for(int i = 1; i<4;i++){
+	        		g2.drawLine(drawRect[i].x,drawRect[i].y,drawRect[i-1].x,drawRect[i-1].y);
+	        	}
+	        	
+	        	g2.setColor(Color.green);
+	        	for(int i = 5; i<8;i++){
+	        		g2.drawLine(drawRect[i].x,drawRect[i].y,drawRect[i-1].x,drawRect[i-1].y);
+	        	}
+	        	
 	        	animationFileIndex += animationSpeed;
-
 	        }
 	        else{
 	        	animationMode = false;
@@ -157,24 +170,33 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
         points = new Rectangle[files.length][8];
         float scaledYOffset = (originalImageHeight*scaleFactor)/4f;
         float boxScaled = boxSize*scaleFactor;
-        for(int i = 0;i<points.length; i++){
-        	float y = 0;
-        	for(int j = 0; j<4; j++){
-        		y++;
-        		
-        		points[i][j] = new Rectangle(0,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
-            }
-        	
-        	y = 0;
-        	for(int j = 4 ; j<8; j++){
-        		y++;
-        		points[i][j] = new Rectangle((int)boxScaled,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
-            }
-        }
         
         if(rawFile.exists() && rawFile.length()>0){
         	System.out.println("Exists");
-
+        	Scanner scanner = null;
+        	try {
+				scanner = new Scanner(new FileReader(rawFile));
+				for(int i = 0;i<points.length; i++){
+		        	float y = 0;
+		        	float x = 0;
+		        	for(int j = 0; j<4; j++){
+		        		y++;
+		        		x = scanner.nextFloat()*originalImageWidth*scaleFactor;
+		        		points[i][j] = new Rectangle((int)x,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
+		            }
+		        	
+		        	y = 0;
+		        	for(int j = 4 ; j<8; j++){
+		        		y++;
+		        		x = scanner.nextFloat()*originalImageWidth*scaleFactor;
+		        		points[i][j] = new Rectangle((int)x,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
+		            }
+		        }
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			}
+        	scanner.close();
         }
         else{
         	
@@ -184,6 +206,22 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+	        
+	        
+	        for(int i = 0;i<points.length; i++){
+	        	float y = 0;
+	        	for(int j = 0; j<4; j++){
+	        		y++;
+	        		
+	        		points[i][j] = new Rectangle(0,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
+	            }
+	        	
+	        	y = 0;
+	        	for(int j = 4 ; j<8; j++){
+	        		y++;
+	        		points[i][j] = new Rectangle((int)boxScaled,(int)(y*scaledYOffset)-(int)boxScaled,(int)boxScaled,(int)boxScaled);
+	            }
+	        }
         }
         this.setFocusable(true);
         this.requestFocusInWindow();
@@ -338,7 +376,21 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 			saveLineData();
 		}
 		
+		if(e.getKeyCode() == KeyEvent.VK_Z){
+			if(fileIndex>0){
+	        	for(int i = 0; i<numberOfPoints;i++){
+	        		points[fileIndex][i] = new Rectangle(points[fileIndex-1][i]);
+	        	}
+        	}
+		}
 		
+		if(e.getKeyCode() == KeyEvent.VK_C){
+			if(fileIndex<points.length-1){
+				for(int i = 0; i<numberOfPoints;i++){
+	        		points[fileIndex][i] = new Rectangle(points[fileIndex+1][i]);
+	        	}
+        	}
+		}
 		
 	}
 
