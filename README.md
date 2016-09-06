@@ -1,25 +1,30 @@
 # Python Neural Network
 
-## Real world lane deteciton : NEW
+## Real world lane deteciton : Multi vertex lines
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/21.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/22.gif)
+
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/23.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/24.gif)
+- Image size 100x56
+- Neural network output are 8 numbers.
+- All 8 numbers represents x values. 4 numbers make up 1 line.
+- RED line is prediction by network, GREEN line is the given traning data.
+
+## Real world lane deteciton : Part 2
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/17.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/18.gif)
 
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/19.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/20.gif)
-- Image size 100x56
 - Neural network output are 4 numbers.
 - First number represents x value, followed by slope of the line. 2 numbers make up 1 line.
-- RED line is prediction by network, GREEN line is the given traning data.
 
-
-## Real world lane deteciton : OLD
+## Real world lane deteciton : Part 1
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/15.gif)
 ![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/16.gif)
-- Image size 100x56
 - Neural network output are 4 numbers.
 - Each number represents x values on a preset y axis. 2 numbers make up 1 line.
-- RED line is prediction by network, GREEN line is the given traning data.
-
 
 ## Basic Self Driving Car 
 - Basic concept of self driving car using Convolutional Neural Networks 
