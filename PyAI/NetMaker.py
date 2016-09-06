@@ -110,7 +110,7 @@ def custom_model_2():
     
     image_model.add(Flatten())
     print(image_model.output_shape)
-    image_model.add(Dense(1024))
+    image_model.add(Dense(2048))
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(1024))
@@ -128,10 +128,13 @@ def custom_model_2():
     image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(512))
+    image_model.add(Dense(1024))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(8))

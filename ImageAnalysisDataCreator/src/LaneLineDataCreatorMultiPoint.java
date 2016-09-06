@@ -36,14 +36,14 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 private float oldPositionX = 0f;
 	 private float oldPositionY = 0f;
 	 
-	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet8";
-	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData8/raw_data.txt";
-	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_8.txt";
+	 private String imagesDataFolder = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/ImagesDataSet14";
+	 //private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/LaneDetectionData/RealData14/raw_data.txt";
+	 private String realData = "C:/Users/Pabla/Desktop/ImageAnalysis/PyAI/output_14.txt";
 	 
 	 private File[] files;
 	 private int fileIndex = 0;
 	 private float animationFileIndex = 0;
-	 private float animationSpeed = 0.05f;
+	 private float animationSpeed = 0.025f;
 	 
 	 Rectangle[][] points;
 	 
@@ -53,7 +53,7 @@ public class LaneLineDataCreatorMultiPoint extends JPanel implements MouseMotion
 	 private float originalImageWidth = 100f;
 	 private float originalImageHeight = 56f;
 	 private float boxSize = 10f;
-	 private float lineWidth = 1f;
+	 private float lineWidth = 0.5f;
 	 
 	 private boolean movingPoint = true;
 	 private int movingPointIndex= 0;
