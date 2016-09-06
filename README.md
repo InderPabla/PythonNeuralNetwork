@@ -1,14 +1,11 @@
 # Python Neural Network
 
-## Real world lane deteciton : Multi vertex lines
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/21.gif)
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/22.gif)
-
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/23.gif)
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/24.gif)
+## Real world lane deteciton : Part 1
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/15.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/16.gif)
 - Image size 100x56
-- Neural network output are 8 numbers.
-- All 8 numbers represents x values. 4 numbers make up 1 line.
+- Neural network output are 4 numbers.
+- Each number represents x values on a preset y axis. 2 numbers make up 1 line.
 - RED line is prediction by network, GREEN line is the given traning data.
 
 ## Real world lane deteciton : Part 2
@@ -20,11 +17,14 @@
 - Neural network output are 4 numbers.
 - First number represents x value, followed by slope of the line. 2 numbers make up 1 line.
 
-## Real world lane deteciton : Part 1
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/15.gif)
-![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/16.gif)
-- Neural network output are 4 numbers.
-- Each number represents x values on a preset y axis. 2 numbers make up 1 line.
+## Real world lane deteciton : Multi vertex lines
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/21.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/22.gif)
+
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/23.gif)
+![](https://github.com/InderPabla/PythonNeuralNetwork/blob/master/Images/24.gif)
+- Neural network output are 8 numbers.
+- All 8 numbers represents x values. 4 numbers make up 1 line.
 
 ## Basic Self Driving Car 
 - Basic concept of self driving car using Convolutional Neural Networks 
