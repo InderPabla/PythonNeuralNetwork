@@ -28,6 +28,8 @@ if __name__ == "__main__":
     image_val_data_location_7 = "LaneDetectionData/ImagesDataSet12/"
     image_val_data_location_8 = "LaneDetectionData/ImagesDataSet13/"
     image_val_data_location_9 = "LaneDetectionData/ImagesDataSet14/"
+    image_val_data_location_10 = "LaneDetectionData/ImagesDataSet15/"
+    image_val_data_location_11 = "LaneDetectionData/ImagesDataSet16/"
     output_file_1 = "output_6.txt"
     output_file_2 = "output_7.txt"
     output_file_3 = "output_8.txt"
@@ -37,14 +39,16 @@ if __name__ == "__main__":
     output_file_7 = "output_12.txt"
     output_file_8 = "output_13.txt"
     output_file_9 = "output_14.txt"
+    output_file_10 = "output_15.txt"
+    output_file_11 = "output_16.txt"
     
     net = NetLoader.NetLoader(model_file=model_path,weights_file=weights_path,
-                              learning_rate = 0.055,decay_rate=0.000001,
-                              train_mode = True,epoch_save = 2,
+                              learning_rate = 0.08,decay_rate=0.000001,
+                              train_mode = True,epoch_save = 3,
                               optimizer = "SGD")
                               
     '''
-    data = DataLoader.DataLoader([image_val_data_location_9], size_x = res_x,
+    data = DataLoader.DataLoader([image_val_data_location_11], size_x = res_x,
                                  size_y=res_y, num_inputs=raw_input_size, 
                                   num_outputs=raw_output_size)
     
@@ -52,7 +56,7 @@ if __name__ == "__main__":
     input_element_1 = data.get_only_image_elements_to_train(0)
     input_element_1 = input_element_1[0]
     pre = net.predict(input_element_1)
-    text_file = open(output_file_9, "w")
+    text_file = open(output_file_11, "w")
     
     for i in range(0,len(input_element_1)):
         out = pre[i]
@@ -60,21 +64,45 @@ if __name__ == "__main__":
     text_file.close() 
     '''
     
-                              
+    
     data = DataLoader.DataLoader([image_val_data_location_1,image_val_data_location_2,
                                   image_val_data_location_3,image_val_data_location_4,
                                   image_val_data_location_5,image_val_data_location_6,
-                                  image_val_data_location_7,image_val_data_location_8], 
+                                  image_val_data_location_7,image_val_data_location_8,
+                                  image_val_data_location_9,image_val_data_location_10], 
                                   size_x = res_x, size_y=res_y, num_inputs=raw_input_size, 
                                   num_outputs=raw_output_size)
     
+  
     if(predict_mode == False):
         data.combine_data(True)
+        data.split_data(6)
         input_element_1,output_element_1 = data.get_set_elements_to_train(0)
         input_element_1 = input_element_1[0]
         
+        input_element_2,output_element_2 = data.get_set_elements_to_train(1)
+        input_element_2 = input_element_2[0]
+        
+        input_element_3,output_element_3 = data.get_set_elements_to_train(2)
+        input_element_3 = input_element_3[0]
+        
+        input_element_4,output_element_4 = data.get_set_elements_to_train(3)
+        input_element_4 = input_element_4[0]
+        
+        input_element_5,output_element_5 = data.get_set_elements_to_train(4)
+        input_element_5 = input_element_5[0]
+        
+        input_element_6,output_element_6 = data.get_set_elements_to_train(5)
+        input_element_6 = input_element_6[0]
+        
+        
         for i in range(0,100):
-            net.fit(input_element_1,output_element_1,verbose = 2)   
+            net.fit(input_element_1,output_element_1,verbose = 2)  
+            net.fit(input_element_2,output_element_2,verbose = 2)
+            net.fit(input_element_3,output_element_3,verbose = 2)
+            net.fit(input_element_4,output_element_4,verbose = 2)
+            net.fit(input_element_5,output_element_5,verbose = 2)
+            net.fit(input_element_6,output_element_6,verbose = 2)
     else:
         input_element_1,output_element_1 = data.get_set_elements_to_train(0)
         input_element_1 = input_element_1[0]
@@ -92,6 +120,10 @@ if __name__ == "__main__":
         input_element_7 = input_element_7[0]
         input_element_8,output_element_8 = data.get_set_elements_to_train(7)
         input_element_8 = input_element_8[0]
+        input_element_9,output_element_9 = data.get_set_elements_to_train(8)
+        input_element_9 = input_element_9[0]
+        input_element_10,output_element_10 = data.get_set_elements_to_train(9)
+        input_element_10 = input_element_10[0]
         
         pre = net.predict(input_element_1)
         text_file = open(output_file_1, "w")
@@ -145,6 +177,20 @@ if __name__ == "__main__":
         pre = net.predict(input_element_8)
         text_file = open(output_file_8, "w")
         for i in range(0,len(input_element_8)):
+            out = pre[i]
+            text_file.write(str(out[0])+" "+str(out[1])+" "+str(out[2])+" "+str(out[3])+" "+str(out[4])+" "+str(out[5])+" "+str(out[6])+" "+str(out[7])+"\n")
+        text_file.close() 
+        
+        pre = net.predict(input_element_9)
+        text_file = open(output_file_9, "w")
+        for i in range(0,len(input_element_9)):
+            out = pre[i]
+            text_file.write(str(out[0])+" "+str(out[1])+" "+str(out[2])+" "+str(out[3])+" "+str(out[4])+" "+str(out[5])+" "+str(out[6])+" "+str(out[7])+"\n")
+        text_file.close() 
+        
+        pre = net.predict(input_element_10)
+        text_file = open(output_file_10, "w")
+        for i in range(0,len(input_element_10)):
             out = pre[i]
             text_file.write(str(out[0])+" "+str(out[1])+" "+str(out[2])+" "+str(out[3])+" "+str(out[4])+" "+str(out[5])+" "+str(out[6])+" "+str(out[7])+"\n")
         text_file.close() 

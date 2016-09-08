@@ -88,28 +88,34 @@ def custom_model_2():
     image_model = Sequential()
     image_model.add(ZeroPadding2D((2, 2), batch_input_shape=(1, 3, 100, 56)))   
 
-    image_model.add(Convolution2D(8, 5, 5, activation='relu', name='conv1_1'))
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(8, 5, 5, activation='relu', name='conv1_2'))
+    image_model.add(Convolution2D(10, 5, 5, activation='relu', name='conv1_2'))
     
     image_model.add(MaxPooling2D((2, 2), strides=(2, 2))) 
         
 
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(16, 5, 5, activation='relu', name='conv2_1'))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(16, 5, 5, activation='relu', name='conv2_2'))
+    image_model.add(Convolution2D(20, 5, 5, activation='relu', name='conv2_2'))
     
     image_model.add(MaxPooling2D((5, 4), strides=(5, 4))) 
     
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_1'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_1'))
     image_model.add(ZeroPadding2D((2, 2)))
-    image_model.add(Convolution2D(32, 5, 5, activation='relu', name='conv3_2'))
+    image_model.add(Convolution2D(40, 5, 5, activation='relu', name='conv3_2'))
     
     
     image_model.add(Flatten())
     print(image_model.output_shape)
+    image_model.add(Dense(2048))
+    image_model.add(Activation('tanh'))
+    
+    image_model.add(Dense(2048))
+    image_model.add(Activation('tanh'))
+    
     image_model.add(Dense(2048))
     image_model.add(Activation('tanh'))
     
@@ -131,10 +137,7 @@ def custom_model_2():
     image_model.add(Dense(1024))
     image_model.add(Activation('tanh'))
     
-    image_model.add(Dense(1024))
-    image_model.add(Activation('tanh'))
-    
-    image_model.add(Dense(1024))
+    image_model.add(Dense(512))
     image_model.add(Activation('tanh'))
     
     image_model.add(Dense(8))

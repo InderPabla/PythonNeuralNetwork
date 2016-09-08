@@ -175,23 +175,14 @@ class DataLoader:
                 
             self.input_images_set = [self.input_images_set]
             self.input_reals_set = [self.input_reals_set]
-            self.output_reals_set = [self.output_reals_set]    
-            
-            
+            self.output_reals_set = [self.output_reals_set]  
         
-        '''
-        if(random_sort == False):
-            self.input_images_set = [new_input_images_set] 
-            self.input_reals_set = [new_input_reals_set]
-            self.output_reals_set = [new_output_reals_set]
-        else:
-            random_index = []
-            for i in range(0,len(new_input_images_set)):
-                random_index.append(i)
-            
-            for i in range(0,len())
-         '''   
+    def split_data(self,splits = 1):     
+        self.input_images_set = np.array_split(np.array(self.input_images_set[0]), splits)
+        self.input_reals_set = np.array_split(np.array(self.input_reals_set[0]), splits)
+        self.output_reals_set = np.array_split(np.array(self.output_reals_set [0]), splits) 
         
+
         
             
             
