@@ -1,18 +1,16 @@
 from keras.models import model_from_json
-from keras.optimizers import SGD, RMSprop
-from keras import backend as K
+from keras.optimizers import SGD
 import numpy as np
 import os.path
-
+import random
 
 if __name__ == "__main__":
     file_name = "BCdata.asc"
     
     model_path = "cancer_model.json"
     weights_path = "cancer_model_weights.h5"
-    weights_path2 = "cancer_model_weights2.h5"
-    input_data = []
-    output_data = []
+    all_input_data = []
+    all_output_data = []
     count = 0
     
     with open(file_name) as file:
@@ -43,23 +41,49 @@ if __name__ == "__main__":
                 normal = numbers_str[10] 
                 mitoses = numbers_str[11] 
                 
-                input_data.append([thickness, size, shape, adhesion, epi, bare, bland, normal, mitoses]) 
-                output_data.append([state])
+                all_input_data.append([thickness, size, shape, adhesion, epi, bare, bland, normal, mitoses]) 
+                
+                if state == 0:
+                    all_output_data.append([1,0])
+                else :
+                    all_output_data.append([0,1])
             
             count = count + 1
             
             
     count = count -1
-      
-    input_data = np.array(input_data) 
-    output_data = np.array(output_data) 
     
-    learning_rate = 0.006 #0.006
+    partition = 0.5
+    train_input_data = []
+    test_input_data = []
+    train_output_data = []
+    test_output_data = []
+    
+    for i in range(0,int(len(all_input_data)*partition)):
+        train_input_data.append(all_input_data[i])  
+        train_output_data.append(all_output_data[i])
+        
+    for i in range(int(len(all_input_data)*partition),len(all_input_data)):
+        test_input_data.append(all_input_data[i])  
+        test_output_data.append(all_output_data[i])  
+      
+      
+    all_input_data = np.array(all_input_data)    
+    test_input_data = np.array(test_input_data)
+    train_input_data = np.array(train_input_data)   
+     
+    all_output_data = np.array(all_output_data) 
+    test_output_data = np.array(test_output_data) 
+    train_output_data = np.array(train_output_data) 
+    
+    
+    
+    learning_rate = 0.06 #0.06
     decay_rate = 0.000001 #0.00001
     loss_function = "mean_squared_error"
     momen = 0.9
     nest = True
-    train_mode = True
+    train_mode = False
     epoch_save = 25
     
     json_file = open(model_path, 'r')
@@ -75,12 +99,61 @@ if __name__ == "__main__":
         
     if(train_mode):   
         for i in range(0,40):
-            cancer_model.fit(input_data, output_data, nb_epoch=epoch_save,verbose = 2)
-            cancer_model.save_weights(weights_path2)
+            cancer_model.fit(train_input_data, train_output_data, nb_epoch=epoch_save,verbose = 2)
+            cancer_model.save_weights(weights_path)
             print("Save: ",i)
     else:
-        predict = cancer_model.predict(input_data) * 100
+        
+        
+        predict = cancer_model.predict(test_input_data)
         correct = 0.0
+        for i in range(0,len(predict)):
+            hasEmptyField = False
+            correctAnswer = False
+            expected_out = test_output_data[i]
+            real_out = predict[i]
+            
+            if(expected_out[0]>expected_out[1] and real_out[0]>real_out[1] ):
+                correct = correct + 1.0
+                correctAnswer = True
+            elif(expected_out[0]<expected_out[1] and real_out[0]<real_out[1]):
+                correct = correct + 1.0
+                correctAnswer = True
+                
+            expected_out = expected_out*100
+            expected_out[0] = int(expected_out[0])
+            expected_out[1] = int(expected_out[1])
+            
+            real_out = real_out*100
+            real_out[0] = int(real_out[0])
+            real_out[1] = int(real_out[1])
+            
+           
+            
+            for j in range(0,9):
+                if(test_input_data[i][j] == 0):
+                    hasEmptyField = True
+                    break
+                
+            infoOut = ""
+              
+            if hasEmptyField == False:
+                infoOut = infoOut+" good"
+            else:
+                 infoOut = infoOut+" BAD"
+                
+            if correctAnswer == False:
+                infoOut = infoOut+" WRONG"
+            else:
+                 infoOut = infoOut+" correct"
+                 
+            print(expected_out," ",real_out,infoOut)
+                
+                
+        acc = (correct/float(len(test_input_data))) * 100
+        print(acc)      
+        
+        '''
         for i in range(0,len(predict)):
             left = predict[i] - (output_data[i][0]*100.0)
             if(left<0):
@@ -94,8 +167,19 @@ if __name__ == "__main__":
             
         acc = (correct/float(len(predict))) * 100
         print(acc)
-    
-    
+        '''
+        
+        '''
+        def my_shuffle(array):
+            random.shuffle(array)
+            return array
+        
+        or
+        
+        random.shuffle(array)
+        '''
+        
+        
     
     
     
