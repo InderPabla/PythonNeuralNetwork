@@ -5,12 +5,12 @@ public class Cell : MonoBehaviour {
 
     public GameObject cellPrefab;
 
-    float thickness = 2; 
+    float thickness = 5; 
     float size = 10;
-    float shape = 10;
-    float adhesion = 0;
+    float shape = 1;
+    float adhesion = 2;
     float epi = 0;
-    float bare = 0;
+    float bare = 10;
     float bland = 0;
     float normal = 0;
     float mitoses = 10;
@@ -35,6 +35,7 @@ public class Cell : MonoBehaviour {
         float height = UnityEngine.Random.Range(0.5f, 0.5f + shapeFactor);
 
         float sizeFactor = size /15f;
+        float nucleasSizeFactor = bare / 15f;
 
         float minSize = 0f;
         if (width > height)
@@ -47,6 +48,8 @@ public class Cell : MonoBehaviour {
                 (0.533f - (0.1f * ((thickness / 10f)))) * (height/width) * (sizeFactor + 1f);*/
 
             transform.GetComponent<CircleCollider2D>().radius = (0.533f - (0.1f * (thickness / 10f))) * (height / width);
+
+            
         }
         else
         {
@@ -59,7 +62,13 @@ public class Cell : MonoBehaviour {
             transform.GetComponent<CircleCollider2D>().radius = (0.533f -(0.1f*(thickness/10f))) * (width/height);
         }
 
-        
+        float fixedRatio = 0.5f / 0.066f;
+
+        float newXSize =  transform.localScale.x/ fixedRatio;
+        float newYSize =  transform.localScale.y / fixedRatio;
+        Debug.Log(newXSize + " " + fixedRatio + " " + transform.localScale.x);
+        transform.GetChild(0).localScale = new Vector3(newXSize * (nucleasSizeFactor + 1f), newYSize * (nucleasSizeFactor + 1f), 0.01f);
+
         if (mitoses > 0)
         {
             Invoke("Reproduce", (float)0f);
