@@ -23,11 +23,13 @@ if __name__ == "__main__":
     if (os.path.exists(weights_path)):
             cancer_model.load_weights(weights_path)
             predict = cancer_model.predict(test_input_data)
+            print(predict[0][0]," ",predict[0][1])
+            '''
             if(predict[0][0]>predict[0][1]):
                 print("0")
             else:
                 print("1")
-            
+            '''
         
         
         

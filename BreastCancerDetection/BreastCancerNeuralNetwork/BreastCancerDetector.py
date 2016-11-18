@@ -2,13 +2,15 @@ from keras.models import model_from_json
 from keras.optimizers import SGD
 import numpy as np
 import os.path
-import random
+
 
 if __name__ == "__main__":
     file_name = "BCdata.asc"
     
     model_path = "cancer_model.json"
     weights_path = "cancer_model_weights.h5"
+    prediction_path = "prediction.txt"
+    
     all_input_data = []
     all_output_data = []
     count = 0
@@ -104,13 +106,14 @@ if __name__ == "__main__":
             print("Save: ",i)
     else:
         
-        
-        predict = cancer_model.predict(test_input_data)
+        #file = open(prediction_path, 'w')
+        predict = cancer_model.predict(all_input_data)
         correct = 0.0
+        error = 0.0
         for i in range(0,len(predict)):
             hasEmptyField = False
             correctAnswer = False
-            expected_out = test_output_data[i]
+            expected_out = all_output_data[i]
             real_out = predict[i]
             
             if(expected_out[0]>expected_out[1] and real_out[0]>real_out[1] ):
@@ -119,7 +122,8 @@ if __name__ == "__main__":
             elif(expected_out[0]<expected_out[1] and real_out[0]<real_out[1]):
                 correct = correct + 1.0
                 correctAnswer = True
-                
+            error = error + (abs(expected_out[0]-real_out[0]) + abs(expected_out[1]-real_out[1]))/2.0
+            
             expected_out = expected_out*100
             expected_out[0] = int(expected_out[0])
             expected_out[1] = int(expected_out[1])
@@ -127,16 +131,14 @@ if __name__ == "__main__":
             real_out = real_out*100
             real_out[0] = int(real_out[0])
             real_out[1] = int(real_out[1])
-            
-           
-            
+
             for j in range(0,9):
-                if(test_input_data[i][j] == 0):
+                if(all_input_data[i][j] == 0):
                     hasEmptyField = True
                     break
                 
             infoOut = ""
-              
+            trainedOn = "0"
             if hasEmptyField == False:
                 infoOut = infoOut+" good"
             else:
@@ -147,11 +149,22 @@ if __name__ == "__main__":
             else:
                  infoOut = infoOut+" correct"
                  
-            print(expected_out," ",real_out,infoOut)
-                
-                
-        acc = (correct/float(len(test_input_data))) * 100
-        print(acc)      
+            print(i," ",expected_out," ",real_out,infoOut)
+            
+            if(i<len(predict)*partition):
+                trainedOn = "1"
+                            
+            #if(i <len(predict) -1):
+                #file.write(trainedOn+" "+str(all_input_data[i][0])+" "+ str(all_input_data[i][1])+" "+ str(all_input_data[i][2])+" "+ str(all_input_data[i][3])+" "+ str(all_input_data[i][4])+" "+ str(all_input_data[i][5])+" "+ str(all_input_data[i][6])+" "+ str(all_input_data[i][7])+" "+ str(all_input_data[i][8])+" "+ str(all_output_data[i][0])+" "+ str(all_output_data[i][1])+" "+ str(predict[i][0])+" "+ str(predict[i][1])+"\n");   
+           # else:
+                #file.write(trainedOn+" "+str(all_input_data[i][0])+" "+ str(all_input_data[i][1])+" "+ str(all_input_data[i][2])+" "+ str(all_input_data[i][3])+" "+ str(all_input_data[i][4])+" "+ str(all_input_data[i][5])+" "+ str(all_input_data[i][6])+" "+ str(all_input_data[i][7])+" "+ str(all_input_data[i][8])+" "+ str(all_output_data[i][0])+" "+ str(all_output_data[i][1])+" "+ str(predict[i][0])+" "+ str(predict[i][1]));   
+        #file.close();        
+        
+        acc = (correct/float(len(all_input_data))) * 100
+        error = error/float(len(all_input_data)) * 100
+        print(acc," ",error)      
+       
+        
         
         '''
         for i in range(0,len(predict)):
