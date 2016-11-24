@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -87,9 +88,9 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data23\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\Data23";
-        string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\AdvancedCarModel\\real_time.png";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data23\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data23";
+        string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
         int resWidth = 50;
@@ -109,20 +110,21 @@ namespace UnityStandardAssets.Vehicles.Car
         bool isCaptured = true;
         float angularVelocity = 0;
         float velocity = 0;
-        float outTurning = 0;
+        float outTurning = -10;
         float outForward = 0;
         NetworkStream stream;
-        bool realTimeTraningMode = false;
-        bool dataCollectMode = false;
+        public bool realTimeTraningMode = false;
+        public bool dataCollectMode = false;
         float recordSpeed = 0.05f;
         float signal = 0;
         float signalChangeTime = 5f;
-        public TextMesh leftText;
-        public TextMesh stayText;
-        public TextMesh rightText;
+        Texture2D texture;
+        double[] realTurningPrediction;
+        bool connected = false;
 
         public void FixedUpdate()
         {
+            //Debug.Log(Screen.width+" "+Screen.height);
             if (initComplete == true && Input.GetKeyDown(KeyCode.P))
             {
                 collectInformaiton = !collectInformaiton;
@@ -153,8 +155,28 @@ namespace UnityStandardAssets.Vehicles.Car
             //Debug.Log(m_Rigidbody.velocity.magnitude / 10f);
         }
 
-        public void SignalChange() {
-            float randomSignal = UnityEngine.Random.Range(0,2);
+       
+        void OnGUI()
+        {
+            float screenWidth = Screen.width;
+            float screenHeight = Screen.height;
+
+
+            if (connected == true && outTurning >=-1)
+            {
+                GUI.color = Color.green;
+                GUI.DrawTexture(new Rect((screenWidth / 2f)-(10f + (float)realTurningPrediction[1] * 100f)/2f, screenHeight * 0.1f - 15f, 10f + (float)realTurningPrediction[1] * 100f, 10f), texture);
+                GUI.color = Color.red;
+                GUI.DrawTexture(new Rect(screenWidth / 2f, screenHeight * 0.1f, 10f + (float)realTurningPrediction[2] * 100f, 10f), texture);
+                GUI.color = Color.blue;
+                GUI.DrawTexture(new Rect(screenWidth / 2f, screenHeight * 0.1f, -10f - (float)realTurningPrediction[0] * 100f, 10f), texture);
+            }
+            
+        }
+
+        public void SignalChange()
+        {
+            float randomSignal = UnityEngine.Random.Range(0, 2);
 
             /*if (signal == -1) {
                 if (randomSignal == 0) {
@@ -187,20 +209,6 @@ namespace UnityStandardAssets.Vehicles.Car
                 }
             }*/
 
-
-            signal *=-1;
-            leftText.text = "";
-            stayText.text = "";
-            rightText.text = "";
-
-            if (signal == -1)
-                leftText.text = "===";
-            else if(signal == 1)
-                rightText.text = "===";
-            else
-                stayText.text = "===";
-
-            Invoke("SignalChange", signalChangeTime);
         }
 
         public void InitilizeDataCollection()
@@ -237,13 +245,20 @@ namespace UnityStandardAssets.Vehicles.Car
             RenderTexture.active = rt;
             screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);*/
 
+            float ratio = (float)Screen.width / (float)Screen.height;
+            float size = 186.88524590163934426229508196722f * ratio;
+            float up = 62.295081967213114754098360655739f * ratio;
+
+
             RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             camera.targetTexture = rt;
-            Texture2D screenShot = new Texture2D(300, 300, TextureFormat.RGB24, false);
+            Texture2D screenShot = new Texture2D((int)size, (int)size, TextureFormat.RGB24, false);
             camera.Render();
             RenderTexture.active = rt;
-            screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
-            screenShot = ScaleTexture(screenShot, 50, 50);
+
+            
+            //screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - size/2, (Screen.height/2) - up, size, size), 0, 0);
 
             screenShot = ScaleTexture(screenShot, 50, 50);
             camera.targetTexture = null;
@@ -263,7 +278,7 @@ namespace UnityStandardAssets.Vehicles.Car
             camera.Render();
             RenderTexture.active = rt;
             screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
-            screenShot = ScaleTexture(screenShot, 50, 50); 
+            screenShot = ScaleTexture(screenShot, 50, 50);
 
             camera.targetTexture = null;
             RenderTexture.active = null;
@@ -321,7 +336,7 @@ namespace UnityStandardAssets.Vehicles.Car
             acceptSocket = serverSocket.AcceptTcpClient();
             stream = acceptSocket.GetStream();
             Debug.Log("Connected");
-
+            connected = true;
             while (true)
             {
 
@@ -339,7 +354,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 float[] data = new float[dataSize];
 
                 data[0] = signal;
-                data[1] = velocity / 10f; 
+                data[1] = velocity / 10f;
 
                 if (realTimeTraningMode == true)
                 {
@@ -367,9 +382,17 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 double[] doubles = Array.ConvertAll(mstrMessage.Split(' '), new Converter<string, double>(Double.Parse));
 
-                outTurning = (float)doubles[0];
+                realTurningPrediction = doubles;
+                if(realTurningPrediction[0]> realTurningPrediction[1] && realTurningPrediction[0] > realTurningPrediction[2])
+                    outTurning = -1;
+                else if(realTurningPrediction[1] > realTurningPrediction[0] && realTurningPrediction[1] > realTurningPrediction[2])
+                    outTurning = 0;
+                else if(realTurningPrediction[2] > realTurningPrediction[0] && realTurningPrediction[2] > realTurningPrediction[1])
+                    outTurning = 1;
+                else
+                    outTurning = 0;
+
                 outForward = 1f;
-                //Debug.Log(outForward+" "+outTurning);
             }
         }
 
@@ -379,24 +402,13 @@ namespace UnityStandardAssets.Vehicles.Car
             Application.runInBackground = true;
             camera = Camera.main;
 
-            signal = 1f;
-            leftText.text = "";
-            stayText.text = "";
-            rightText.text = "";
-
-            if (signal == -1)
-                leftText.text = "===";
-            else if (signal == 1)
-                rightText.text = "===";
-
-            Invoke("SignalChange", 500000000000f);
-
             if (dataCollectMode == true)
             {
                 InitilizeDataCollection();   //<< NEEDS TO BE CALLED TO START TAKING PICTURES
             }
             else
             {
+                Debug.Log("Starting");
                 thread = new Thread(Worker);
                 thread.IsBackground = true; //not a dameon thread, must run in foreground
                 thread.Start();
@@ -439,10 +451,30 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE ENDS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE ENDS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+        private IEnumerator WaitForScreenChange()
+        {
+            int width = 800;
+            int height = 498;
 
+            //Screen.fullScreen = fullscreen;
+
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
+            Screen.SetResolution(width, height, true);
+        }
+
+        private void Awake()
+        {
+            StartCoroutine(WaitForScreenChange());
+        }
 
         private void Start()
         {
+
+            
+
+            texture = new Texture2D(1, 1);
             m_WheelMeshLocalRotations = new Quaternion[4];
             for (int i = 0; i < 4; i++)
             {
@@ -460,11 +492,9 @@ namespace UnityStandardAssets.Vehicles.Car
 
 
 
-
-
-
         private void GearChanging()
         {
+            Screen.SetResolution(800, 498, true);
             float f = Mathf.Abs(CurrentSpeed / MaxSpeed);
             float upgearlimit = (1 / (float)NoOfGears) * (m_GearNum + 1);
             float downgearlimit = (1 / (float)NoOfGears) * m_GearNum;
