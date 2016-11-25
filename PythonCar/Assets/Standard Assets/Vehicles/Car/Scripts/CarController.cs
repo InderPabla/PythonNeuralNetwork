@@ -88,8 +88,8 @@ namespace UnityStandardAssets.Vehicles.Car
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MY CODE STARTS HERE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data23\\raw_data.txt";
-        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data23";
+        string raw_data_file = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data25\\raw_data.txt";
+        string picture_location = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\Data25";
         string real_time_image = "C:\\Users\\Pabla\\Desktop\\ImageAnalysis\\Tests\\AdvancedCarModel\\real_time.png";
 
         Camera camera;
@@ -121,7 +121,7 @@ namespace UnityStandardAssets.Vehicles.Car
         Texture2D texture;
         double[] realTurningPrediction;
         bool connected = false;
-
+        int port = 12345;
         public void FixedUpdate()
         {
             //Debug.Log(Screen.width+" "+Screen.height);
@@ -158,6 +158,10 @@ namespace UnityStandardAssets.Vehicles.Car
        
         void OnGUI()
         {
+            GUIStyle myStyle = new GUIStyle();
+            myStyle.fontStyle = FontStyle.Bold;
+            myStyle.fontSize = 20;
+
             float screenWidth = Screen.width;
             float screenHeight = Screen.height;
 
@@ -166,10 +170,37 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 GUI.color = Color.green;
                 GUI.DrawTexture(new Rect((screenWidth / 2f)-(10f + (float)realTurningPrediction[1] * 100f)/2f, screenHeight * 0.1f - 15f, 10f + (float)realTurningPrediction[1] * 100f, 10f), texture);
+                /*if ((float)realTurningPrediction[1] > (float)realTurningPrediction[0] && (float)realTurningPrediction[1] > (float)realTurningPrediction[2])
+                {
+                    GUI.color = Color.black;
+                    myStyle.normal.textColor = Color.black;
+                }
+                else*/
+                    myStyle.normal.textColor = Color.green;
+                GUI.Label(new Rect(screenWidth / 2f, screenHeight * 0.1f - 35f, 100f, 25f),""+((float)realTurningPrediction[1]*100f).ToString("###")+"%",myStyle);
+
                 GUI.color = Color.red;
                 GUI.DrawTexture(new Rect(screenWidth / 2f, screenHeight * 0.1f, 10f + (float)realTurningPrediction[2] * 100f, 10f), texture);
+                /*if ((float)realTurningPrediction[2] > (float)realTurningPrediction[0] && (float)realTurningPrediction[2] > (float)realTurningPrediction[1])
+                {
+                    GUI.color = Color.black;
+                    myStyle.normal.textColor = Color.black;
+                }
+                else*/
+                    myStyle.normal.textColor = Color.red;
+                GUI.Label(new Rect(screenWidth / 2f+35, screenHeight * 0.1f+15, 100,25), "" + ((float)realTurningPrediction[2] * 100f).ToString("###") + "%", myStyle);
+
                 GUI.color = Color.blue;
                 GUI.DrawTexture(new Rect(screenWidth / 2f, screenHeight * 0.1f, -10f - (float)realTurningPrediction[0] * 100f, 10f), texture);
+                /*if ((float)realTurningPrediction[0] > (float)realTurningPrediction[1] && (float)realTurningPrediction[0] > (float)realTurningPrediction[2])
+                {
+                    GUI.color = Color.black;
+                    myStyle.normal.textColor = Color.black;
+                }
+                else*/
+                    myStyle.normal.textColor = Color.blue;
+                myStyle.normal.textColor = Color.blue;
+                GUI.Label(new Rect(screenWidth / 2f - 35, screenHeight * 0.1f + 15, 100, 25), "" + ((float)realTurningPrediction[0] * 100f).ToString("###") + "%", myStyle);
             }
             
         }
@@ -245,22 +276,23 @@ namespace UnityStandardAssets.Vehicles.Car
             RenderTexture.active = rt;
             screenShot.ReadPixels(new Rect((Screen.width / 2) - 100, (Screen.height / 2) - 130, 200, 200), 0, 0);*/
 
-            float ratio = (float)Screen.width / (float)Screen.height;
-            float size = 186.88524590163934426229508196722f * ratio;
-            float up = 62.295081967213114754098360655739f * ratio;
-
+            float ratioX = Screen.width/(617f / 300f);
+            float ratioY = Screen.height / (378f / 300f);
+            float ratioYUp = Screen.height / (378f / 100f);
 
             RenderTexture rt = new RenderTexture(Screen.width, Screen.height, 24);
             camera.targetTexture = rt;
-            Texture2D screenShot = new Texture2D((int)size, (int)size, TextureFormat.RGB24, false);
+            Texture2D screenShot = new Texture2D((int)ratioX, (int)ratioY, TextureFormat.RGB24, false);
             camera.Render();
             RenderTexture.active = rt;
 
             
             //screenShot.ReadPixels(new Rect((Screen.width / 2) - 150, (Screen.height / 2) - 100, 300, 300), 0, 0);
-            screenShot.ReadPixels(new Rect((Screen.width / 2) - size/2, (Screen.height/2) - up, size, size), 0, 0);
+            screenShot.ReadPixels(new Rect((Screen.width / 2) - ratioX/ 2, (Screen.height/2) - ratioYUp, ratioX, ratioY), 0, 0);
 
             screenShot = ScaleTexture(screenShot, 50, 50);
+
+            //screenShot = ScaleTexture(screenShot, 50, 50);
             camera.targetTexture = null;
             RenderTexture.active = null;
             Destroy(rt);
@@ -306,7 +338,6 @@ namespace UnityStandardAssets.Vehicles.Car
 
 
             stream_writer.WriteLine((velo.magnitude / 10f) + " " + one + " " + two + " " + three);
-            //Debug.Log(angular_velo.y + " " + (velo.sqrMagnitude/100f) + " " /*+ (m_SteerAngle) + " "*/ /*+ forward + " "*/ + turn);
             filenumber++;
         }
 
@@ -330,7 +361,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public void Worker()
         {
             address = Dns.GetHostEntry("localhost").AddressList[0];
-            serverSocket = new TcpListener(address, 12345);
+            serverSocket = new TcpListener(address, port);
             serverSocket.Start();
 
             acceptSocket = serverSocket.AcceptTcpClient();
@@ -341,10 +372,7 @@ namespace UnityStandardAssets.Vehicles.Car
             {
 
                 isCaptured = false;
-                while (isCaptured == false)
-                {
-                    //wait
-                }
+                while (isCaptured == false){}//wait
 
 
                 int dataSize = 5;
@@ -466,7 +494,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         private void Awake()
         {
-            StartCoroutine(WaitForScreenChange());
+            //StartCoroutine(WaitForScreenChange());
         }
 
         private void Start()
