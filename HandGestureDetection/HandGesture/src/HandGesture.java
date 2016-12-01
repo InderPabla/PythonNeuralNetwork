@@ -145,7 +145,7 @@ public class HandGesture extends JFrame implements Runnable{
     							if(pixelRaster2D[i][j] == 0xFFFD5F00)
     	    						densityRaster[i][j]++; //update desnity if pixel found is green
     							else 
-    								densityRaster[i][j]--;
+    								densityRaster[i][j]-=2;
         					}
     					}
     				//}
@@ -162,7 +162,7 @@ public class HandGesture extends JFrame implements Runnable{
     			pixelRaster[index] = 0xFF000000; //make pixel black 
     			
     			//if denisty at this pixel is greater then 40
-    			if(densityRaster[col][row]>150){
+    			if(densityRaster[col][row]>166){
     				pixelRaster[index] = 0xFFFD5F00; //turn this pixel green
     				
     				if(listOfFoundObjects.size() == 0)
@@ -186,21 +186,9 @@ public class HandGesture extends JFrame implements Runnable{
     	}
     	
     	
-    	
-    	
-    	
-    	
-    	initialWebcamImage.setRGB(0, 0, width, height, tempRaster, 0, width); //initial webcam image to temp raster data
-    	tempInitialWebcamImage.setRGB(0, 0, width, height, pixelRaster, 0, width); //temp webcam image to pixel raster data
-    		
-    	//draw buffered images 
-    	graphic.drawImage(initialWebcamImage, 0, 0, null);
-    	graphic.drawImage(tempInitialWebcamImage, width, 0, null);
-    	
-    	
-    	
     	//draw found rectangles 
     	graphic.setColor(Color.red);
+    	Rectangle rec = null;
     	int minX = 10000;
     	int maxX = -10000;
     	
@@ -242,7 +230,40 @@ public class HandGesture extends JFrame implements Runnable{
     			maxY = height - 1;
     		
     		
-    		Rectangle rec = new Rectangle(minX,minY,maxX-minX,maxY-minY);
+    		rec = new Rectangle(minX,minY,maxX-minX,maxY-minY);
+    		index = 0;
+    		for(int i =0; i<height;i++)
+    		{
+    			for(int j =0; j<width;j++)
+        		{
+        			if(i>=minX && i <=maxX && j>=minY && j <=maxY)
+        			{
+        				int max = 4;
+    					int lowY = i-max>=0?i-max:0;
+    					int highY = i+max<height?i+max:height-1;
+    					
+    					int lowX = j-max>=0?j-max:0;
+    					int highX = j+max<width?j+max:width-1;
+    					
+    					for(int k = lowY; k<=highY;k++){
+    						
+    						for(int h = lowX;h<=highX;h++){
+    							
+    							if(pixelRaster2D[k][h] == 0xFFFD5F00)
+    								densityRaster[i][j]++;
+    								//pixelRaster[index] = 0xFF00FF00;
+        					}
+    					}
+        				
+        				if(densityRaster[i][j]>=1 && densityRaster[i][j]<120){
+    						pixelRaster[index] = 0xFF00FF00;
+        				}
+        				
+        			}
+        			index++;
+        		}
+    			
+    		}
     		
     		BufferedImage crop = cropImage(tempInitialWebcamImage,rec);
     		
@@ -259,11 +280,34 @@ public class HandGesture extends JFrame implements Runnable{
     		graphic.drawImage(crop, 0, height, null);
     		System.out.println(crop.getWidth()+" "+crop.getHeight());
 		
-    		graphic.setColor(Color.red);
-    		graphic.drawRect(rec.x,rec.y,rec.width,rec.height);
+    		
     	
     	}
     	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	initialWebcamImage.setRGB(0, 0, width, height, tempRaster, 0, width); //initial webcam image to temp raster data
+    	tempInitialWebcamImage.setRGB(0, 0, width, height, pixelRaster, 0, width); //temp webcam image to pixel raster data
+    		
+    	//draw buffered images 
+    	graphic.drawImage(initialWebcamImage, 0, 0, null);
+    	graphic.drawImage(tempInitialWebcamImage, width, 0, null);
+    	
+    	
+    	if(listOfFoundObjects.size()>0)
+    	{
+    		
+    		graphic.setColor(Color.red);
+    		graphic.drawRect(rec.x,rec.y,rec.width,rec.height);
+    	}
     	
 	
     }
